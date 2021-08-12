@@ -20,7 +20,9 @@ CI<-function (x, ci = 0.95){
 
 ### read in simulation results####
 filePattern<-"SPIM_simResults_scenario"
-results_SPIM<-list.files(pattern=filePattern)
+
+results_SPIM<-list.files("SPIMresults") #the folder that spim results are in
+results_SPIM<-results_SPIM[grepl(filePattern,results_SPIM)]
 
 whichPartialIDS<-list(paste(c("_","sex","collar","coat"),collapse=""),
                       paste(c("_","antlers","sex","collar","coat"),collapse=""))
@@ -52,7 +54,7 @@ for(pids in 1:length(whichPartialIDS)){
   SPIMresults_allDF<-data.frame()
   
   for(i in 1:length(results_SPIM_subset)){
-    tmp<-read.csv(results_SPIM_subset[i])
+    tmp<-read.csv(paste0("SPIMresults/",results_SPIM_subset[i]))
     SPIMresults_allDF <-rbind.fill(SPIMresults_allDF,tmp)
   }
   
@@ -156,6 +158,12 @@ for(pids in 1:length(whichPartialIDS)){
   
   # caluclating coverage
   coverage_SPIM_calc<-SPIMresults_allDF[SPIMresults_allDF$param=="N"|SPIMresults_allDF$param=="sigma",]%>%group_by(cohesion, aggregation, p0,param)%>%summarise(coverage=sum(coverage)/100)
+  
+  coverage_SPIM_calc$PID<-substring(whichPartialIDS[[pids]],2,nchar(whichPartialIDS[[pids]]))
+  coverage_SPIM_calc$antler<-ifelse(grepl("antler",whichPartialIDS[[pids]]),1,0)
+  coverage_SPIM_calc$sex<-ifelse(grepl("sex",whichPartialIDS[[pids]]),1,0)
+  coverage_SPIM_calc$collar<-ifelse(grepl("collar",whichPartialIDS[[pids]]),1,0)
+  coverage_SPIM_calc$coat<-ifelse(grepl("coat",whichPartialIDS[[pids]]),1,0)
   coverages_calc_SPIM<-rbind(coverages_calc_SPIM,coverage_SPIM_calc)
   
   #bootstrapping coverage
@@ -542,29 +550,66 @@ plot_sig_cv_SPIM<-ggplot(SPIMresults[SPIMresults$param=="sigma",],
 
 
 ### coverage ####
+# 
+# plot_N_coverage_SPIM<-ggplot(coverages_calc_SPIM[coverages_calc_SPIM$param=="N",], 
+#                       aes(x=aggregation, y=coverage, group=PID)) +#
+#   geom_line(aes(color=PID))+ 
+#   geom_point(aes(color=PID))+
+#   facet_grid(rows=vars(p0),cols=vars(cohesion),labeller=labeller(p0 = p0.labs,
+#                                                                  cohesion=coh.labs))+
+#   labs(title="Abundance (N) ", x="Aggregation (Group Size)",y="Coverage")+
+#   theme_bw()+
+#   theme(plot.title = element_text(hjust = 0.5), 
+#         panel.grid.major = element_blank(),
+#         panel.grid.minor = element_blank(),
+#         panel.border = element_rect(colour = "black", fill = NA))
+# 
+# plot_sig_coverage_SPIM<-ggplot(coverages_SPIM[coverages_SPIM$param=="sigma",], 
+#                              aes(x=aggregation, y=coverage, group=PID)) +#
+#   geom_line(aes(color=PID))+ 
+#   geom_point(aes(color=PID))+
+#   facet_grid(rows=vars(p0),cols=vars(cohesion),labeller=labeller(p0 = p0.labs,
+#                                                                    cohesion=coh.labs))+
+#   labs(title="Sigma (\u03c3) ", x="Aggregation (Group Size)",y="Coverage")+
+#   theme_bw()+
+#   theme(plot.title = element_text(hjust = 0.5), 
+#         panel.grid.major = element_blank(),
+#         panel.grid.minor = element_blank(),
+#         panel.border = element_rect(colour = "black", fill = NA))
 
-plot_N_coverage_SPIM<-ggplot(coverages_SPIM[coverages_SPIM$param=="N",], 
-                      aes(x=aggregation, y=coverage, group=PID)) +#
-  geom_line(aes(color=PID))+ 
-  geom_point(aes(color=PID))+
+#temporarily manipulate the coverage data so that they dont overlap when plotted
+coverages_boot_SPIM$aggregation<-as.numeric(levels(coverages_boot_SPIM$aggregation))[coverages_boot_SPIM$aggregation]
+coverages_boot_SPIM$aggregation[coverages_boot_SPIM$PID=="sexcollarcoat"]<-coverages_boot_SPIM$aggregation[coverages_boot_SPIM$PID=="sexcollarcoat"]-0.8
+
+coverages_calc_SPIM$aggregation<-as.numeric(levels(coverages_calc_SPIM$aggregation))[coverages_calc_SPIM$aggregation]
+coverages_calc_SPIM$aggregation[coverages_calc_SPIM$PID=="sexcollarcoat"]<-coverages_calc_SPIM$aggregation[coverages_calc_SPIM$PID=="sexcollarcoat"]-0.8
+
+
+plot_N_coverage_SPIM<-ggplot(coverages_boot_SPIM[coverages_boot_SPIM$param=="sigma",], 
+                             aes(x=aggregation, y=coverage, group=PID)) +#
+  geom_point(data=coverages_calc_SPIM[coverages_calc_SPIM$param=="sigma",], 
+             size=3,
+             aes(x=aggregation, y=coverage,
+                 shape=cohesion,group=cohesion,color=PID))+
+  geom_line(data=coverages_calc_SPIM[coverages_calc_SPIM$param=="sigma",],
+            aes(x=aggregation, y=coverage, group=PID,color=PID))+ 
+  stat_summary(fun.min = function(x) min(x), 
+               fun.max = function(x) max(x), 
+               geom = "linerange",size=1,
+               aes(color=PID),show.legend = FALSE) +
+  scale_x_continuous(breaks=c(1,4,10),labels=c(1,4,10))+
   facet_grid(rows=vars(p0),cols=vars(cohesion),labeller=labeller(p0 = p0.labs,
                                                                  cohesion=coh.labs))+
-  labs(title="Abundance (N) ", x="Aggregation (Group Size)",y="Coverage")+
+  labs(title="Sigma (\u03c3)", x="Aggregation (Group Size)",y="Coverage")+
   theme_bw()+
   theme(plot.title = element_text(hjust = 0.5), 
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.border = element_rect(colour = "black", fill = NA))
 
-plot_sig_coverage_SPIM<-ggplot(coverages_SPIM[coverages_SPIM$param=="sigma",], 
-                             aes(x=aggregation, y=coverage, group=PID)) +#
-  geom_line(aes(color=PID))+ 
-  geom_point(aes(color=PID))+
-  facet_grid(rows=vars(p0),cols=vars(cohesion),labeller=labeller(p0 = p0.labs,
-                                                                   cohesion=coh.labs))+
-  labs(title="Sigma (\u03c3) ", x="Aggregation (Group Size)",y="Coverage")+
-  theme_bw()+
-  theme(plot.title = element_text(hjust = 0.5), 
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_rect(colour = "black", fill = NA))
+#return coverage data so that they dont overlap when plotted
+coverages_boot_SPIM$aggregation[coverages_boot_SPIM$PID=="sexcollarcoat"]<-coverages_boot_SPIM$aggregation[coverages_boot_SPIM$PID=="sexcollarcoat"]+0.6
+coverages_boot_SPIM$aggregation<-as.factor(coverages_boot_SPIM$aggregation)
+
+coverages_calc_SPIM$aggregation[coverages_calc_SPIM$PID=="sexcollarcoat"]<-coverages_calc_SPIM$aggregation[coverages_calc_SPIM$PID=="sexcollarcoat"]+0.6
+coverages_calc_SPIM$aggregation<-as.factor(coverages_calc_SPIM$aggregation)
