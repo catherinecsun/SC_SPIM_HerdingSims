@@ -4,14 +4,23 @@ library(ggplot2)
 library(ggpubr)
 library(Metrics)
 
+####custom bootstrap function####
+booties<-function(object,Bsamples=1000){
+  boot.samples<-matrix(sample(object, size = Bsamples * length(object), replace = TRUE), Bsamples, length(object))
+  return(apply(boot.samples, 1, mean))
+}
+
 ### read in simulation results####
 filePattern<-"SC_simResults_scenario"
-results_SC<-list.files(pattern=filePattern)
+
+results_SC<-list.files("SCresults") #the folder that spim results are in
+results_SC<-results_SC[grepl(filePattern,results_SC)]
+
 
 SCresults<-data.frame()
 
 for(i in 1:length(results_SC)){
-  tmp<-read.csv(results_SC[i])
+  tmp<-read.csv(paste0("SCresults/",results_SC[i]))
   SCresults <-rbind.fill(SCresults,tmp)
 }
 
@@ -37,6 +46,8 @@ if(nrow(convergeFail)>0){
   SCresults<-SCresults[-convergeFail_remove,]
 }
 
+#double check things
+table(SCresults$scenario)
 
 # add columns for the parameter/scenario conditions
 #use a different version of parm_combos that focuses 
@@ -67,23 +78,23 @@ truth<-c("D"=N.inds/area,"N"=N.inds,"psi"=N.inds/M,"sigma"=3) #"lam0"=c(0.05,0.2
 SCresults$Truth[which(SCresults$param%in%names(truth))]<-truth[match(SCresults$param[which(SCresults$param%in%names(truth))],names(truth))]
 SCresults$Truth[which(SCresults$param=="lam0"&SCresults$scenario %% 2 == 0)]<-0.2
 SCresults$Truth[which(SCresults$param=="lam0"&SCresults$scenario %% 2 == 1)]<-0.05
-SCresults$RB<-(SCresults$Truth-SCresults$Median)/SCresults$Median
+SCresults$RB<-(SCresults$Truth-SCresults$Mean)/SCresults$Mean
   
 
 ### Coefficient of Variation, precision ####
 #SD/estimate
-SCresults$CoV<-SCresults$St.Dev/SCresults$Median
+SCresults$CoV<-SCresults$St.Dev/SCresults$Mean
 
 
 ##rmse
 SCresults$rmse<-NA
 for(n in 1:length(unique(SCresults$scenario))){
   SCresults$rmse[SCresults$scenario==n&SCresults$param=="D"]<-
-    rmse(truth[names(truth)=="D"], SCresults$Median[SCresults$scenario==n&SCresults$param=="D"])
+    rmse(truth[names(truth)=="D"], SCresults$Mean[SCresults$scenario==n&SCresults$param=="D"])
   SCresults$rmse[SCresults$scenario==n&SCresults$param=="N"]<-
-    rmse(truth[names(truth)=="N"], SCresults$Median[SCresults$scenario==n&SCresults$param=="N"])
+    rmse(truth[names(truth)=="N"], SCresults$Mean[SCresults$scenario==n&SCresults$param=="N"])
   SCresults$rmse[SCresults$scenario==n&SCresults$param=="sigma"]<-
-    rmse(truth[names(truth)=="sigma"], SCresults$Median[SCresults$scenario==n&SCresults$param=="sigma"])
+    rmse(truth[names(truth)=="sigma"], SCresults$Mean[SCresults$scenario==n&SCresults$param=="sigma"])
 }
 
 #coverage
@@ -104,40 +115,48 @@ for(co in 1:nrow(SCresults)){
 }
 
 library(dplyr)
-coverage_SC_N<-SCresults[SCresults$param=="N",]%>%group_by(cohesion, aggregation, p0)%>%summarize(param="N",coverage=sum(coverage)/100)
-coverage_SC_sigma<-SCresults[SCresults$param=="sigma",]%>%group_by(cohesion, aggregation, p0)%>%summarize(param="sigma",coverage=sum(coverage)/100)
-coverages_SC<-rbind(coverage_SC_N,coverage_SC_sigma) #merge(coverage_N,coverage_sigma,by=colnames(coverage_N)[-4])
+
+# caluclating coverage
+coverages_calc_SC<-SCresults[SCresults$param=="N"|SCresults$param=="sigma",]%>%
+  group_by(cohesion, aggregation, p0,param)%>%
+  summarise(coverage=sum(coverage)/100)
+
+#bootstrapping coverage
+coverages_boot_SC<-SCresults[SCresults$param=="N"|SCresults$param=="sigma",]%>%
+  group_by(cohesion, aggregation, p0,param)%>%
+  summarise(coverage=booties(coverage))
 
 
 ### relative variance ####
+
 ###table####
-SC_table<-coverages_SC
-SC_table<-left_join(SC_table,
-               unique(SCresults[SCresults$param%in%unique(SC_table$param),c(match(colnames(coverages_SC)[-ncol(coverages_SC)],colnames(SCresults)),which(colnames(SCresults)=="rmse"))]),
-               by=colnames(SC_table)[-ncol(SC_table)])
-SC_table$rmse<-round(SC_table$rmse,2)
+# SC_table<-coverages_SC
+# SC_table<-left_join(SC_table,
+#                unique(SCresults[SCresults$param%in%unique(SC_table$param),c(match(colnames(coverages_SC)[-ncol(coverages_SC)],colnames(SCresults)),which(colnames(SCresults)=="rmse"))]),
+#                by=colnames(SC_table)[-ncol(SC_table)])
+# SC_table$rmse<-round(SC_table$rmse,2)
+
 ### plot N ####
 #   HOW THE HECK DO I ADD A COLOR TO THE ALPHA LEGEND
 
+##plot prep
 p0.labs <- c("p0: 0.05", "p0: 0.20")
 names(p0.labs) <- c("0.05", "0.2")
 
 coh.labs <- c("Cohesion: 0","Cohesion: 0.3", "Cohesion: 0.67", "Cohesion: 1")
 names(coh.labs) <- c("0","0.3", "0.67", "1")
-N.inds
 Truth<-"2"
-plot_Nmed_SC<-ggplot(data=SCresults[SCresults$param=="N",],aes(x=aggregation, y=Median,fill=aggregation))+# alpha=cohesion,
+
+
+plot_Nmed_SC<-ggplot(data=SCresults[SCresults$param=="N",],
+                     aes(x=aggregation, y=Median,fill=aggregation))+# alpha=cohesion,
   geom_boxplot()+
-  # stat_summary(fun=mean, colour="black", geom="text", 
-  #               aes( label=round(..y.., digits=0)))+
   scale_fill_discrete(name = "Group Size", labels = c('1', '4','10'))+
   scale_alpha_manual(name = "Cohesion",
                      labels=c("0","0.3","0.67","1"),
                      values=c(0.2,0.4,0.6,0.8))+
   geom_hline(aes(yintercept=140,linetype="Truth"),color="black")+ #,  color = "N.inds"
   scale_linetype_manual(name="",values=2)+
-  #geom_hline(yintercept=140/4, linetype="dashed", color = "black")+
-  #geom_hline(yintercept=140/10, linetype="dashed", color = "black")+
   guides(color=guide_legend(order=2),
          alpha=guide_legend(order=3),
          linetype=guide_legend(order=1))+
@@ -148,7 +167,6 @@ plot_Nmed_SC<-ggplot(data=SCresults[SCresults$param=="N",],aes(x=aggregation, y=
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         strip.background = element_blank(),
-        #strip.text.y = element_blank(),
         panel.border = element_rect(colour = "black", fill = NA))
 
 plot_Nmed_SC_alt<-ggplot(SCresults[SCresults$param=="N",],
@@ -162,18 +180,49 @@ plot_Nmed_SC_alt<-ggplot(SCresults[SCresults$param=="N",],
   theme(plot.title = element_text(hjust = 0.5),
         panel.grid.major = element_blank(), panel.grid.minor = element_blank())#,
 
+# ggplot(SCresults[SCresults$param=="N",],
+#        aes(x=aggregation, y=Median)) + 
+#   geom_boxplot(aes(fill=p0))+
+#   # scale_color_brewer(palette="Blues")+
+#   geom_hline(yintercept=141,lty=2)+
+#   labs(title="Abundance (N)",x="Aggregation (Group Size)",y="Estimate")+
+#   facet_grid(vars(cohesion),switch="y")+
+#   theme_bw()+
+#   theme(plot.title = element_text(hjust = 0.5),
+#         panel.grid.major = element_blank(), panel.grid.minor = element_blank())#,
 
-ggplot(SCresults[SCresults$param=="N",],
-       aes(x=aggregation, y=Median)) + 
-  geom_boxplot(aes(fill=p0))+
+
+plot_Nmean_SC<-ggplot(data=SCresults[SCresults$param=="N",],
+                     aes(x=aggregation, y=Mean,fill=aggregation))+# alpha=cohesion,
+  geom_boxplot()+
+  scale_fill_discrete(name = "Group Size", labels = c('1', '4','10'))+
+  scale_alpha_manual(name = "Cohesion",
+                     labels=c("0","0.3","0.67","1"),
+                     values=c(0.2,0.4,0.6,0.8))+
+  geom_hline(aes(yintercept=140,linetype="Truth"),color="black")+ #,  color = "N.inds"
+  scale_linetype_manual(name="",values=2)+
+  guides(color=guide_legend(order=2),
+         alpha=guide_legend(order=3),
+         linetype=guide_legend(order=1))+
+  facet_grid(rows=vars(p0),cols=vars(cohesion), 
+             labeller = labeller(p0 = p0.labs,cohesion=coh.labs))+ #switch = "y"
+  labs(title="Abundance (N)",x="",y="Estimate")+theme_bw()+ #Aggregation (Group Size)
+  theme(plot.title = element_text(hjust = 0.5), 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        strip.background = element_blank(),
+        panel.border = element_rect(colour = "black", fill = NA))
+
+plot_Nmean_SC_alt<-ggplot(SCresults[SCresults$param=="N",],
+                         aes(x=aggregation, y=Mean,color=cohesion)) + 
+  geom_boxplot()+
   # scale_color_brewer(palette="Blues")+
   geom_hline(yintercept=141,lty=2)+
   labs(title="Abundance (N)",x="Aggregation (Group Size)",y="Estimate")+
-  facet_grid(vars(cohesion),switch="y")+
+  facet_grid(vars(p0),switch="y",labeller = labeller(p0 = p0.labs))+
   theme_bw()+
   theme(plot.title = element_text(hjust = 0.5),
         panel.grid.major = element_blank(), panel.grid.minor = element_blank())#,
-
 
 plot_N_rb_SC<-ggplot(data=SCresults[SCresults$param=="N",])+
   geom_boxplot(aes(x=aggregation, y=RB,alpha=cohesion,fill=aggregation))+
@@ -294,6 +343,35 @@ plot_sigMed_SC_alt<-ggplot(SCresults[SCresults$param=="sigma",],
         panel.grid.major = element_blank(), panel.grid.minor = element_blank())#,
 
 
+plot_sigMean_SC<-ggplot(data=SCresults[SCresults$param=="sigma",])+
+  geom_boxplot(aes(x=aggregation, y=Mean,alpha=cohesion,fill=aggregation))+
+  scale_fill_discrete(name = "Group Size", labels = c('1', '4','10'))+
+  scale_alpha_manual(name = "Cohesion",
+                     labels=c("0","0.3","0.67","1"),
+                     values=c(0.2,0.4,0.6,0.8))+
+  geom_hline(yintercept=3, linetype="dashed", color = "black")+
+  facet_grid(rows=vars(p0),cols=vars(cohesion), 
+             labeller = labeller(p0 = p0.labs,cohesion=coh.labs))+ #switch = "y"
+  labs(title="Sigma (\u03c3)",x="Aggregation (Group Size)",y="Estimate")+theme_bw()+ #Aggregation (Group Size)
+  theme(plot.title = element_text(hjust = 0.5), 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        strip.background = element_blank(),
+        panel.border = element_rect(colour = "black", fill = NA))
+
+
+plot_sigMean_SC_alt<-ggplot(SCresults[SCresults$param=="sigma",],
+                           aes(x=aggregation, y=Mean,color=cohesion)) + 
+  geom_boxplot()+
+  geom_hline(yintercept=3, linetype="dashed", color = "black")+
+  # scale_color_brewer(palette="Blues")+
+  labs(title="Sigma  (\u03c3)", x="Aggregation (Group Size)",y="CoV")+
+  facet_grid(vars(p0),switch="y",labeller = labeller(p0 = p0.labs))+
+  theme_bw()+
+  theme(plot.title = element_text(hjust = 0.5),
+        panel.grid.major = element_blank(), panel.grid.minor = element_blank())#,
+
+
 plot_sig_rb_SC<-ggplot(data=SCresults[SCresults$param=="sigma",])+
   geom_boxplot(aes(x=aggregation, y=RB,alpha=cohesion,fill=aggregation))+
   scale_fill_discrete(name = "Group Size", labels = c('1', '4','10'))+
@@ -395,11 +473,32 @@ plot_sig_rmse_SC_alt<-ggplot(SCresults[SCresults$param=="sigma",],
 
 ### coverage ####
 
-plot_coverage_SC<-ggplot(coverages_SC, aes(x=aggregation, y=coverage, group=cohesion)) +
-  geom_line(aes(color=cohesion))+
-  geom_point(aes(color=cohesion))+
+#temporarily manipulate the coverage data so that they dont overlap when plotted
+coverages_boot_SC$aggregation<-as.numeric(levels(coverages_boot_SC$aggregation))[coverages_boot_SC$aggregation]
+coverages_boot_SC$aggregation[coverages_boot_SC$cohesion==0]<-coverages_boot_SC$aggregation[coverages_boot_SC$cohesion==0]-0.6
+coverages_boot_SC$aggregation[coverages_boot_SC$cohesion==0.3]<-coverages_boot_SC$aggregation[coverages_boot_SC$cohesion==0.3]-0.3
+coverages_boot_SC$aggregation[coverages_boot_SC$cohesion==1]<-coverages_boot_SC$aggregation[coverages_boot_SC$cohesion==1]+0.3
+
+coverages_calc_SC$aggregation<-as.numeric(levels(coverages_calc_SC$aggregation))[coverages_calc_SC$aggregation]
+coverages_calc_SC$aggregation[coverages_calc_SC$cohesion==0]<-coverages_calc_SC$aggregation[coverages_calc_SC$cohesion==0]-0.6
+coverages_calc_SC$aggregation[coverages_calc_SC$cohesion==0.3]<-coverages_calc_SC$aggregation[coverages_calc_SC$cohesion==0.3]-0.3
+coverages_calc_SC$aggregation[coverages_calc_SC$cohesion==1]<-coverages_calc_SC$aggregation[coverages_calc_SC$cohesion==1]+0.3
+
+
+plot_coverage_SC<-ggplot(data=coverages_boot_SC, aes(x=aggregation, y=coverage,group=cohesion)) + # 
+  geom_point(data=coverages_calc_SC, size=3,
+             aes(x=aggregation, y=coverage,
+                 shape=cohesion,group=cohesion,color=cohesion))+
+  stat_summary(fun.min = function(x) min(x), 
+               fun.max = function(x) max(x), 
+               geom = "linerange",size=1,
+               aes(color=cohesion),show.legend = FALSE) +
+  # stat_summary(fun = mean,
+  #              geom = "line",aes(color=cohesion)) +
+  scale_x_continuous(breaks=c(1,4,10),labels=c(1,4,10))+
   facet_grid(rows=vars(p0),cols=vars(param),labeller = labeller(p0 = p0.labs))+
-  labs(title="Abundance (N)       and Sigma (\u03c3)", x="Aggregation (Group Size)",y="Coverage")+
+  labs(title="Abundance (N)       and Sigma (\u03c3)", x="Aggregation (Group Size)",
+       y="Coverage")+
   theme_bw()+
   theme(plot.title = element_text(hjust = 0.5), 
         panel.grid.major = element_blank(),
@@ -408,4 +507,13 @@ plot_coverage_SC<-ggplot(coverages_SC, aes(x=aggregation, y=coverage, group=cohe
         strip.text.x = element_blank(),
         panel.border = element_rect(colour = "black", fill = NA))
 
+#return coverage data so aggregation values are correct. 
+coverages_boot_SC$aggregation[coverages_boot_SC$cohesion==0]<-coverages_boot_SC$aggregation[coverages_boot_SC$cohesion==0]+0.6
+coverages_boot_SC$aggregation[coverages_boot_SC$cohesion==0.3]<-coverages_boot_SC$aggregation[coverages_boot_SC$cohesion==0.3]+0.3
+coverages_boot_SC$aggregation[coverages_boot_SC$cohesion==1]<-coverages_boot_SC$aggregation[coverages_boot_SC$cohesion==1]-0.3
+coverages_boot_SC$aggregation<-as.factor(coverages_boot_SC$aggregation)
 
+coverages_calc_SC$aggregation[coverages_calc_SC$cohesion==0]<-coverages_calc_SC$aggregation[coverages_calc_SC$cohesion==0]+0.6
+coverages_calc_SC$aggregation[coverages_calc_SC$cohesion==0.3]<-coverages_calc_SC$aggregation[coverages_calc_SC$cohesion==0.3]+0.3
+coverages_calc_SC$aggregation[coverages_calc_SC$cohesion==1]<-coverages_calc_SC$aggregation[coverages_calc_SC$cohesion==1]-0.3
+coverages_calc_SC$aggregation<-as.factor(coverages_calc_SC$aggregation)

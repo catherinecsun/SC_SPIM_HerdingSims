@@ -4,19 +4,12 @@ library(ggplot2)
 library(ggpubr)
 library(Metrics)
 
-####custom boostrap and CI functions####
+####custom bootstrap function####
 booties<-function(object,Bsamples=1000){
   boot.samples<-matrix(sample(object, size = Bsamples * length(object), replace = TRUE), Bsamples, length(object))
   return(apply(boot.samples, 1, mean))
 }
 
-CI<-function (x, ci = 0.95){
-  a <- mean(x)
-  s <- sd(x)
-  n <- length(x)
-  error <- qt(ci + (1 - ci)/2, df = n - 1) * s/sqrt(n)
-  return(error)
-}
 
 ### read in simulation results####
 filePattern<-"SPIM_simResults_scenario"
@@ -168,7 +161,6 @@ for(pids in 1:length(whichPartialIDS)){
   
   #bootstrapping coverage
   coverage_SPIM<-SPIMresults_allDF[SPIMresults_allDF$param=="N"|SPIMresults_allDF$param=="sigma",]%>%group_by(cohesion, aggregation, p0,param)%>% summarise(coverage=booties(coverage))
-  #coverage_SPIM<-coverage_SPIM%>%group_by(cohesion, aggregation, p0,param)%>% summarise(mean=mean(coverage),CI=CI(coverage,0.95))
    
   coverage_SPIM$PID<-substring(whichPartialIDS[[pids]],2,nchar(whichPartialIDS[[pids]]))
   coverage_SPIM$antler<-ifelse(grepl("antler",whichPartialIDS[[pids]]),1,0)
@@ -405,7 +397,7 @@ plot_N_cv_alt<-ggplot(SPIMresults_allDF[SPIMresults_allDF$param=="N",],
           strip.text.x = element_blank(),
           panel.border = element_rect(colour = "black", fill = NA))
  
-  #return coverage data so that they dont overlap when plotted
+  #return coverage data so aggregation values are correct. 
   
   coverage_SPIM$aggregation[coverage_SPIM$cohesion==0]<-coverage_SPIM$aggregation[coverage_SPIM$cohesion==0]+0.6
   coverage_SPIM$aggregation[coverage_SPIM$cohesion==0.3]<-coverage_SPIM$aggregation[coverage_SPIM$cohesion==0.3]+0.3
