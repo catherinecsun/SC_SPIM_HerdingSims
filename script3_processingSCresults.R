@@ -485,26 +485,43 @@ coverages_calc_SC$aggregation[coverages_calc_SC$cohesion==0.3]<-coverages_calc_S
 coverages_calc_SC$aggregation[coverages_calc_SC$cohesion==1]<-coverages_calc_SC$aggregation[coverages_calc_SC$cohesion==1]+0.3
 
 
-plot_coverage_SC<-ggplot(data=coverages_boot_SC, aes(x=aggregation, y=coverage,group=cohesion)) + # 
-  geom_point(data=coverages_calc_SC, size=3,
+plot_N_coverage_SC<-ggplot(data=coverages_boot_SC[coverages_boot_SC$param=="N",], aes(x=aggregation, y=coverage,group=cohesion)) + # 
+  geom_point(data=coverages_calc_SC[coverages_calc_SC$param=="N",], size=3,
              aes(x=aggregation, y=coverage,
                  shape=cohesion,group=cohesion,color=cohesion))+
   stat_summary(fun.min = function(x) min(x), 
                fun.max = function(x) max(x), 
                geom = "linerange",size=1,
                aes(color=cohesion),show.legend = FALSE) +
-  # stat_summary(fun = mean,
-  #              geom = "line",aes(color=cohesion)) +
   scale_x_continuous(breaks=c(1,4,10),labels=c(1,4,10))+
-  facet_grid(rows=vars(p0),cols=vars(param),labeller = labeller(p0 = p0.labs))+
-  labs(title="Abundance (N)       and Sigma (\u03c3)", x="Aggregation (Group Size)",
+  facet_grid(rows=vars(p0),cols=vars(cohesion),labeller=labeller(p0 = p0.labs,
+                                                                 cohesion=coh.labs))+
+  labs(title="Abundance (N)", x="Aggregation (Group Size)",
        y="Coverage")+
   theme_bw()+
   theme(plot.title = element_text(hjust = 0.5), 
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        strip.background = element_blank(),
-        strip.text.x = element_blank(),
+        panel.border = element_rect(colour = "black", fill = NA))
+
+
+plot_sigma_coverage_SC<-ggplot(data=coverages_boot_SC[coverages_boot_SC$param=="sigma",], aes(x=aggregation, y=coverage,group=cohesion)) + # 
+  geom_point(data=coverages_calc_SC[coverages_calc_SC$param=="sigma",], size=3,
+             aes(x=aggregation, y=coverage,
+                 shape=cohesion,group=cohesion,color=cohesion))+
+  stat_summary(fun.min = function(x) min(x), 
+               fun.max = function(x) max(x), 
+               geom = "linerange",size=1,
+               aes(color=cohesion),show.legend = FALSE) +
+  scale_x_continuous(breaks=c(1,4,10),labels=c(1,4,10))+
+  facet_grid(rows=vars(p0),cols=vars(cohesion),labeller=labeller(p0 = p0.labs,
+                                                                 cohesion=coh.labs))+
+  labs(title="Sigma (\u03c3)", x="Aggregation (Group Size)",
+       y="Coverage")+
+  theme_bw()+
+  theme(plot.title = element_text(hjust = 0.5), 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
         panel.border = element_rect(colour = "black", fill = NA))
 
 #return coverage data so aggregation values are correct. 
