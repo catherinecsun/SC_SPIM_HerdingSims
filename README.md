@@ -10,6 +10,8 @@ Evaluating violations of independence (among indivdiuals, in their location and 
 - Camera Traps (J): 75 (15x 5)
 - Statespace: 
 
+- 24 population scenarios (but only 18 relevant ones given all combos with Cohesion===0 are the equivalent)
+- 100 populations per scenario to simulate/generate data for, and to then estimate.
 
 ## Scripts
 * Scripts with 1 generate and explore data
