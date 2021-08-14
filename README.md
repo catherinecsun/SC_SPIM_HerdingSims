@@ -1,6 +1,10 @@
 # SC_SPM_sims
 Evaluating violations of independence 
 
+N (pop size): 140
+sigma (range of movement):3
+Aggregation (group size): [1,4,10]
+
 ## Scripts
 * Scripts with 1 generate and explore data
 * Scripts with 2 run the Spatial Count (Chandler and Royle) and Spatial Partial Identity (Augustine) models
