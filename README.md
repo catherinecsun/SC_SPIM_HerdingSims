@@ -4,7 +4,7 @@ Evaluating violations of independence
 ## Scripts
 * Scripts with 1 generate and explore data
 * Scripts with 2 run the Spatial Count (Chandler and Royle) and Spatial Partial Identity (Augustine) models
-*  * uses the Microsoft Azure VM
+  * uses the Microsoft Azure VM
 * Scripts with 3 postprocess and summarize
 
 ## Tasks
