@@ -1,7 +1,7 @@
 # SC_SPM_sims
 Evaluating violations of independence (among indivdiuals, in their location and movement patterns) in SCR-based unmarked density estimation models.
 
-- N (pop size): 140
+- N (pop size): 140 
 - sigma (range of movement):3
 - Aggregation (group size): [1,4,10]
 - Cohesion: [0,0.3, 0.67, 1]
@@ -15,6 +15,10 @@ Evaluating violations of independence (among indivdiuals, in their location and 
 * Scripts with 1 generate and explore data
 * Scripts with 2 run the Spatial Count (Chandler and Royle) and Spatial Partial Identity (Augustine) models
   * uses the Microsoft Azure VM
+  * Bayesian framework
+      * uses informed gamma distribution for sigma prior
+      * Data augmentation parameter M=400/600
+      * single chain of 49998 iterations, burn in of the initial of 4998 and then split into 3 equal chains
 * Scripts with 3 postprocess and summarize
 
 ## Tasks
