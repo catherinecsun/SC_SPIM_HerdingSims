@@ -1,9 +1,10 @@
 # SC_SPM_sims
 Evaluating violations of independence 
 
-Scripts with 1 generate and explore data
-Scripts with 2 run the Spatial Count (Chandler and Royle) and Spatial Partial Identity (Augustine) models
-SCripts with 3 postprocess and summarize
+## Scripts
+* Scripts with 1 generate and explore data
+* Scripts with 2 run the Spatial Count (Chandler and Royle) and Spatial Partial Identity (Augustine) models
+* Scripts with 3 postprocess and summarize
 
 To do:
 - for coverage plots, consider ribbons connecting the maxes to maxes and mins to mins, rather than a line segment through the median/mean
