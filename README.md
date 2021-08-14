@@ -1,5 +1,5 @@
 # SC_SPM_sims
-Evaluating violations of independence 
+Evaluating violations of independence (among indivdiuals, in their location and movement patterns) in SCR-based unmarked density estimation models.
 
 - N (pop size): 140
 - sigma (range of movement):3
