@@ -1,9 +1,15 @@
 # SC_SPM_sims
 Evaluating violations of independence 
 
-N (pop size): 140
-sigma (range of movement):3
-Aggregation (group size): [1,4,10]
+- N (pop size): 140
+- sigma (range of movement):3
+- Aggregation (group size): [1,4,10]
+- Cohesion: [0,0.3, 0.67, 1]
+- Detection probability: [0.05, 0.2]
+- Sampling occasions (K): 4
+- Camera Traps (J): 75 (15x 5)
+- Statespace: 
+
 
 ## Scripts
 * Scripts with 1 generate and explore data
