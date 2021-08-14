@@ -4,7 +4,10 @@ Evaluating violations of independence
 ## Scripts
 * Scripts with 1 generate and explore data
 * Scripts with 2 run the Spatial Count (Chandler and Royle) and Spatial Partial Identity (Augustine) models
+*  * uses the Microsoft Azure VM
 * Scripts with 3 postprocess and summarize
+
+## Tasks
 
 To do:
 - for coverage plots, consider ribbons connecting the maxes to maxes and mins to mins, rather than a line segment through the median/mean
@@ -16,6 +19,6 @@ Finished:
 - run sex coat collar
 
 Run:
-- sex coat
-- coat
-- sex
+- sex coat, SPIM
+- coat, SPIM
+- sex, SPIM
