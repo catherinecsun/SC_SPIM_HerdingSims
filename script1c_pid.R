@@ -1,4 +1,4 @@
-# Calculating probablity of identity
+# Calculating probability of identity
 # for partial identities
 
 library(gtools) #for combinations()
