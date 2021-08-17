@@ -31,10 +31,11 @@ To do:
 - figure out a way to quantify the amount of ID info given pop size and partial id covs.. (read ben's paper and also L. Waits)
 
 Finished:
-- run antler sex coat collar
-- run sex coat collar
+- run antler +  sex +  coat +  collar
+- run sex +  coat  + collar
+- sex  + coat, SPIM
 
 Run:
-- sex coat, SPIM
-- coat, SPIM
+- collar + sex, SPIM
+- collar, SPIM
 - sex, SPIM
