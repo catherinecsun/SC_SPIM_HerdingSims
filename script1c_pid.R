@@ -8,7 +8,7 @@ library(ggplot2) #for ggplot()
 #the (corrected) partial ids
 parms_IDcovs<-sim_data[[1]][[1]]$parms_IDcovs
 
-#4 covariates (all 4); 1 combo
+###4 covariates (all 4); 1 combo ####
 # antlers, sex, collar, coat
 combos_4<-as.data.frame(combinations(4,4,names(parms_IDcovs)))
 combos_4$probs_unique<-NA
