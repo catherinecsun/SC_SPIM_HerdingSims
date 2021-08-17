@@ -577,7 +577,29 @@ coverages_calc_SPIM$aggregation<-as.numeric(levels(coverages_calc_SPIM$aggregati
 coverages_calc_SPIM$aggregation[coverages_calc_SPIM$PID=="sexcollarcoat"]<-coverages_calc_SPIM$aggregation[coverages_calc_SPIM$PID=="sexcollarcoat"]-0.8
 
 
-plot_N_coverage_SPIM<-ggplot(coverages_boot_SPIM[coverages_boot_SPIM$param=="sigma",], 
+plot_N_coverage_SPIM<-ggplot(coverages_boot_SPIM[coverages_boot_SPIM$param=="N",], 
+                             aes(x=aggregation, y=coverage, group=PID)) +#
+  geom_point(data=coverages_calc_SPIM[coverages_calc_SPIM$param=="N",], 
+             size=3,
+             aes(x=aggregation, y=coverage,
+                 shape=cohesion,group=cohesion,color=PID))+
+  geom_line(data=coverages_calc_SPIM[coverages_calc_SPIM$param=="N",],
+            aes(x=aggregation, y=coverage, group=PID,color=PID))+ 
+  stat_summary(fun.min = function(x) min(x), 
+               fun.max = function(x) max(x), 
+               geom = "linerange",size=1,
+               aes(color=PID),show.legend = FALSE) +
+  scale_x_continuous(breaks=c(1,4,10),labels=c(1,4,10))+
+  facet_grid(rows=vars(p0),cols=vars(cohesion),labeller=labeller(p0 = p0.labs,
+                                                                 cohesion=coh.labs))+
+  labs(title="Abundance (N)", x="Aggregation (Group Size)",y="Coverage")+
+  theme_bw()+
+  theme(plot.title = element_text(hjust = 0.5), 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_rect(colour = "black", fill = NA))
+
+plot_sigma_coverage_SPIM<-ggplot(coverages_boot_SPIM[coverages_boot_SPIM$param=="sigma",], 
                              aes(x=aggregation, y=coverage, group=PID)) +#
   geom_point(data=coverages_calc_SPIM[coverages_calc_SPIM$param=="sigma",], 
              size=3,
