@@ -17,7 +17,8 @@ filePattern<-"SPIM_simResults_scenario"
 results_SPIM<-list.files("SPIMresults") #the folder that spim results are in
 results_SPIM<-results_SPIM[grepl(filePattern,results_SPIM)]
 
-whichPartialIDS<-list(paste(c("_","sex","collar","coat"),collapse=""),
+whichPartialIDS<-list(paste(c("_","sex","coat"),collapse=""),
+                      paste(c("_","sex","collar","coat"),collapse=""),
                       paste(c("_","antlers","sex","collar","coat"),collapse=""))
 
 #empty dataframes to put things in
@@ -58,8 +59,8 @@ for(pids in 1:length(whichPartialIDS)){
   table(SPIMresults_allDF$scenario)
   
   #remove any sims that didnt converge
-  which(SPIMresults_allDF$Rhat_pt>1.2)
-  convergeFail<-unique(SPIMresults_allDF[which(SPIMresults_allDF$Rhat_pt>1.2),colnames(SPIMresults_allDF)%in%c("scenario","sim")])
+  which(SPIMresults_allDF$Rhat_pt>1.1)
+  convergeFail<-unique(SPIMresults_allDF[which(SPIMresults_allDF$Rhat_pt>1.1),colnames(SPIMresults_allDF)%in%c("scenario","sim")])
   convergeFail_remove<-c()
   if(nrow(convergeFail)>0){
     for(f in 1:nrow(convergeFail)){
@@ -435,7 +436,7 @@ rm(plot_N,plot_N_alt,plot_N_rb,plot_N_rb_alt,plot_N_cv,plot_N_cv_alt,
 
 
 #### all scenarios all together now
-
+SPIMresults$PID<-factor(SPIMresults$PID,levels=unique( unique(SPIMresults$PID)))
 #median and means
 plot_Nmed_SPIM<-ggplot(SPIMresults[SPIMresults$param=="N",],
        aes(x=aggregation, y=X50.,color=PID)) + 
@@ -460,6 +461,7 @@ plot_Nmean_SPIM<-ggplot(SPIMresults[SPIMresults$param=="N",],
   theme_bw()+
   theme(plot.title = element_text(hjust = 0.5),
         panel.grid.major = element_blank(), panel.grid.minor = element_blank())#,
+
 
 
 plot_sigmaMed_SPIM<-ggplot(SPIMresults[SPIMresults$param=="sigma",],
@@ -572,9 +574,11 @@ plot_sig_cv_SPIM<-ggplot(SPIMresults[SPIMresults$param=="sigma",],
 #temporarily manipulate the coverage data so that they dont overlap when plotted
 coverages_boot_SPIM$aggregation<-as.numeric(levels(coverages_boot_SPIM$aggregation))[coverages_boot_SPIM$aggregation]
 coverages_boot_SPIM$aggregation[coverages_boot_SPIM$PID=="sexcollarcoat"]<-coverages_boot_SPIM$aggregation[coverages_boot_SPIM$PID=="sexcollarcoat"]-0.8
+coverages_boot_SPIM$aggregation[coverages_boot_SPIM$PID=="sexcoat"]<-coverages_boot_SPIM$aggregation[coverages_boot_SPIM$PID=="sexcoat"]+0.8
 
 coverages_calc_SPIM$aggregation<-as.numeric(levels(coverages_calc_SPIM$aggregation))[coverages_calc_SPIM$aggregation]
 coverages_calc_SPIM$aggregation[coverages_calc_SPIM$PID=="sexcollarcoat"]<-coverages_calc_SPIM$aggregation[coverages_calc_SPIM$PID=="sexcollarcoat"]-0.8
+coverages_calc_SPIM$aggregation[coverages_calc_SPIM$PID=="sexcoat"]<-coverages_calc_SPIM$aggregation[coverages_calc_SPIM$PID=="sexcoat"]+0.8
 
 
 plot_N_coverage_SPIM<-ggplot(coverages_boot_SPIM[coverages_boot_SPIM$param=="N",], 
@@ -623,7 +627,9 @@ plot_sigma_coverage_SPIM<-ggplot(coverages_boot_SPIM[coverages_boot_SPIM$param==
 
 #return coverage data so that they dont overlap when plotted
 coverages_boot_SPIM$aggregation[coverages_boot_SPIM$PID=="sexcollarcoat"]<-coverages_boot_SPIM$aggregation[coverages_boot_SPIM$PID=="sexcollarcoat"]+0.6
+coverages_boot_SPIM$aggregation[coverages_boot_SPIM$PID=="sexcoat"]<-coverages_boot_SPIM$aggregation[coverages_boot_SPIM$PID=="sexcoat"]-0.8
 coverages_boot_SPIM$aggregation<-as.factor(coverages_boot_SPIM$aggregation)
 
 coverages_calc_SPIM$aggregation[coverages_calc_SPIM$PID=="sexcollarcoat"]<-coverages_calc_SPIM$aggregation[coverages_calc_SPIM$PID=="sexcollarcoat"]+0.6
+coverages_calc_SPIM$aggregation[coverages_calc_SPIM$PID=="sexcoat"]<-coverages_calc_SPIM$aggregation[coverages_calc_SPIM$PID=="sexcoat"]-0.8
 coverages_calc_SPIM$aggregation<-as.factor(coverages_calc_SPIM$aggregation)
