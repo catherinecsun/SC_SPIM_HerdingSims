@@ -6,7 +6,13 @@ library(plyr) #for rbind.fill()
 library(ggplot2) #for ggplot()
 
 #the (corrected) partial ids
-parms_IDcovs<-sim_data[[1]][[1]]$parms_IDcovs
+#parms_IDcovs<-sim_data[[1]][[1]]$parms_IDcovs
+parms_IDcovs<-list(antlers_cont=c(0.022,0.185,0.043,0.021,0.070,0.045,
+                                  0.055,0.059,0.096,0.085,0.060,0.064,
+                                  0.061,0.021,0.021,0.043,0.043,0.006),
+                   sex_bin=c(0.5, 0.5),
+                   collar_bin=c(0.96, 0.04),
+                   coat_bin=c(0.2,0.2,0.2,0.2,0.2))
 
 ###4 covariates (all 4); 1 combo ####
 # antlers, sex, collar, coat

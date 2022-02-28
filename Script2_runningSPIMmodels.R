@@ -11,6 +11,7 @@ library(coda)
 library(tidyr)
 library(ggplot2)
 
+load("E:/.RData")
 
 ##### The data ####
 #scenario 1:8 all have aggregation of 1 so the cohesion is irrelevant
@@ -19,7 +20,7 @@ library(ggplot2)
 # and2 4, 6, and 8 are the same
 #so can remove 3:8
 
-View(sim_data)
+#View(sim_data)
 #make sure this is the most recent version 
 sim_data[[1]][[1]]$parms_IDcovs$sex_bin # should be [0.5, 0.5]
 sim_data[[1]][[1]]$pop_ids$antlers # shouldnt be 999
@@ -30,7 +31,7 @@ sum(sim_data[[1]][[1]]$parms_IDcovs$antlers_cont) # should be 1
 ##### which scenarios? ####
 whichScenario<-c(1)#c(14:18)
 
-whichIDS<-c("antlers","sex", "collar" ,"coat") #out ofantlers sex collar coat
+whichIDS<-c("sex") #out ofantlers sex collar coat
 
 
 ##### how many batches of sims to do/cores to use? ####
@@ -43,8 +44,8 @@ batches<-10
 #batches*sims #total number of sims to do
 
 ##### how many iterations to run and burn per simulation? ####
-niters<-  16666*3 #30000 650#
-burn<- 4998#5000 50#  
+niters<-  30000 # 650 # 16666*3
+burn<- 5000  # 50 #  4998#
 
 #data<-sim_data[[9]][[1]]
 
@@ -91,16 +92,26 @@ myFun2<-function(data,whichIDS,niters,burn,j){ #
   
   #possible values and their proportions (evenly distributed across all values)
   IDlist<-list()
-  IDlist$ncat<-ncol(G.obs)
+  IDlist$ncat<-ifelse(is.data.frame(G.obs),ncol(G.obs),1)
   IDlist$IDcovs<-list()
   gammaVals<-list()
   
-  for(c in 1:ncol(G.obs)){
-    IDlist$IDcovs[[c]]<- 1:max(G.obs[,c])
-    gammaVals[[c]]<-rep(1/max(G.obs[,c]),max(G.obs[,c])) #as.vector(table(G.obs[,c])/nrow(G.obs))
+  if(is.data.frame(G.obs)){ #ie. if there are at least 2 columns/partial IDs of interest
+    for(c in 1:ncol(G.obs)){
+      IDlist$IDcovs[[c]]<- 1:max(G.obs[,c])
+      gammaVals[[c]]<-rep(1/max(G.obs[,c]),max(G.obs[,c])) #as.vector(table(G.obs[,c])/nrow(G.obs))
+    }
+    names(IDlist$IDcovs)<-colnames(G.obs)
+    names(gammaVals)<-colnames(G.obs)
+  }else{ #just one partial ID and G.obs is just a vector
+    
+      IDlist$IDcovs[[1]]<- 1:max(G.obs)
+      gammaVals[[1]]<-rep(1/max(G.obs),max(G.obs)) #as.vector(table(G.obs[,c])/nrow(G.obs))
+    
+    names(IDlist$IDcovs)<-whichIDS
+    names(gammaVals)<-whichIDS
   }
-  names(IDlist$IDcovs)<-colnames(G.obs)
-  names(gammaVals)<-colnames(G.obs)
+  
   
   #if collar is a category but there's only 1 value (ie actually no collared inds)
   # remove it from the list of partial covs
