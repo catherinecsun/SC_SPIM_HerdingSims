@@ -81,7 +81,7 @@ myFun2<-function(data,whichIDS,niters,burn,j){ #
   
   #fix rownames of dets so that that the number after the (.) doesnt have a leading 0
   rownames(dets)<-paste0( sapply(strsplit(rownames(dets),"[.]"),"[[",1),".",
-                         as.numeric(sapply(strsplit(rownames(dets),"[.]"),"[[",2)))
+                          as.numeric(sapply(strsplit(rownames(dets),"[.]"),"[[",2)))
   
   data$pop_ids$Group_ID<-sapply(strsplit(data$pop_ids$Group_ID,"[.]"),"[[",1)
   data$pop_ids$ID<-(1:data$parms$group.size)
@@ -105,8 +105,8 @@ myFun2<-function(data,whichIDS,niters,burn,j){ #
     names(gammaVals)<-colnames(G.obs)
   }else{ #just one partial ID and G.obs is just a vector
     
-      IDlist$IDcovs[[1]]<- 1:max(G.obs)
-      gammaVals[[1]]<-rep(1/max(G.obs),max(G.obs)) #as.vector(table(G.obs[,c])/nrow(G.obs))
+    IDlist$IDcovs[[1]]<- 1:max(G.obs)
+    gammaVals[[1]]<-rep(1/max(G.obs),max(G.obs)) #as.vector(table(G.obs[,c])/nrow(G.obs))
     
     names(IDlist$IDcovs)<-whichIDS
     names(gammaVals)<-whichIDS
@@ -124,11 +124,11 @@ myFun2<-function(data,whichIDS,niters,burn,j){ #
       gammaVals<-gammaVals[-which(names(gammaVals)=="collar")]
     }
   }
-
-    
+  
+  
   dataSPIM<-list(y.obs=y.obs,G.obs=as.matrix(G.obs),IDlist=IDlist,X=X,K=K,buff=buff,obstype=obstype)
- 
- 
+  
+  
   nswap=nrow(y.obs)/2 
   inits <- list(psi=0.5,lam0=runif(1),sigma=rnorm(1,3),gamma=gammaVals)
   priors=list(sigma=c(24,8))
@@ -151,10 +151,10 @@ myFun2<-function(data,whichIDS,niters,burn,j){ #
                     M = M, inits=inits,proppars=proppars,obstype=obstype,priors=priors,
                     IDup=IDup,keepACs=keepACs,keepGamma=keepGamma)
   time_b=Sys.time()
-
+  
   
   #This will get you  acceptance probabilies. Can't change N, n, or psi.
- # 1-rejectionRate(mcmc(out$out))
+  # 1-rejectionRate(mcmc(out$out))
   out$acceptRate<-1-rejectionRate(mcmc(out$out))
   
   #burn 
@@ -262,49 +262,49 @@ for(w in whichScenario){# which scenario of the 24
     test8<-myFun2(data=datasets[[i+7*batches]],whichIDS=whichIDS,niters=niters,burn=burn,j=i+7*batches)
     test9<-myFun2(data=datasets[[i+8*batches]],whichIDS=whichIDS,niters=niters,burn=burn,j=i+8*batches)
     test10<-myFun2(data=datasets[[i+9*batches]],whichIDS=whichIDS,niters=niters,burn=burn,j=i+9*batches)
-
+    
     test<-list(test1,test2,test3,test4,test5,
                test6,test7,test8,test9,test10)
   }
   
   #put everything in a large dataframe instead of a nested list
-   out <- unlist(out, recursive = FALSE)
-   out<-unlist(out,recursive=FALSE)
-   # acceptRate, gel, summary, gammaProps, time, itsTot, PID
-
-   summary_df <- do.call("rbind", out[which(names(out)=="summary")])
-   summary_df$param<-rep(rownames(out$summary),max(summary_df$sim))
+  out <- unlist(out, recursive = FALSE)
+  out<-unlist(out,recursive=FALSE)
+  # acceptRate, gel, summary, gammaProps, time, itsTot, PID
   
-   # 
-   gel_df<-unlist(out[which(names(out)=="gel")],recursive = FALSE)
-   gel_df<-as.data.frame(do.call("rbind",gel_df[which(names(gel_df)=="gel.psrf")]))
-   colnames(gel_df)<-c("Rhat_pt","Rhat_upper")
-   summary_df<-cbind(summary_df,gel_df)
+  summary_df <- do.call("rbind", out[which(names(out)=="summary")])
+  summary_df$param<-rep(rownames(out$summary),max(summary_df$sim))
+  
   # 
-   
-   accept_df<-unlist(out[which(names(out)=="acceptRate")],recursive = FALSE)
-   neff_df<-unlist(out[which(names(out)=="eff")],recursive = FALSE)
-   summary_df$accept<-accept_df
-   summary_df$effSize<-neff_df
-   
-   #
-   summary_df$its<-rep(do.call("rbind", out[which(names(out)=="itsTot")]),each=5)
-   #
-   time<-do.call("rbind", out[which(names(out)=="time")])
-   time<-time[rep(seq_len(nrow(time)), each = 5), ]
-   
-   summary_df<-cbind(summary_df,time)
-   summary_df$scenario<-w
-   summary_df$M<-M
-   
-   # colnames(summary_df)
-   # [1] "Mean"           "SD"             "Naive SE"       "Time-series SE"
-   # [5] "2.5%"           "25%"            "50%"            "75%"           
-   # [9] "97.5%"          "sim"            "param"          "Rhat_pt"       
-   # [13] "Rhat_upper"     "accept"         "effSize"        "its"           
-   # [17] "time"           "scenario"       "M"             
-   #  
-   summary_df<-summary_df[,c(18,11,10, 1,7,2,5,9,16,19,17,12:15)]
+  gel_df<-unlist(out[which(names(out)=="gel")],recursive = FALSE)
+  gel_df<-as.data.frame(do.call("rbind",gel_df[which(names(gel_df)=="gel.psrf")]))
+  colnames(gel_df)<-c("Rhat_pt","Rhat_upper")
+  summary_df<-cbind(summary_df,gel_df)
+  # 
+  
+  accept_df<-unlist(out[which(names(out)=="acceptRate")],recursive = FALSE)
+  neff_df<-unlist(out[which(names(out)=="eff")],recursive = FALSE)
+  summary_df$accept<-accept_df
+  summary_df$effSize<-neff_df
+  
+  #
+  summary_df$its<-rep(do.call("rbind", out[which(names(out)=="itsTot")]),each=5)
+  #
+  time<-do.call("rbind", out[which(names(out)=="time")])
+  time<-time[rep(seq_len(nrow(time)), each = 5), ]
+  
+  summary_df<-cbind(summary_df,time)
+  summary_df$scenario<-w
+  summary_df$M<-M
+  
+  # colnames(summary_df)
+  # [1] "Mean"           "SD"             "Naive SE"       "Time-series SE"
+  # [5] "2.5%"           "25%"            "50%"            "75%"           
+  # [9] "97.5%"          "sim"            "param"          "Rhat_pt"       
+  # [13] "Rhat_upper"     "accept"         "effSize"        "its"           
+  # [17] "time"           "scenario"       "M"             
+  #  
+  summary_df<-summary_df[,c(18,11,10, 1,7,2,5,9,16,19,17,12:15)]
   
   write.csv(summary_df,paste0("SPIM_simResults_scenario",w,
                               "_N",parm_combos$N.inds[w],
@@ -314,26 +314,25 @@ for(w in whichScenario){# which scenario of the 24
                               "_",paste(whichIDS,collapse=""),
                               ".csv"))
   #which(summary_df$Rhat_pt>1.2)
-   
-   gamma_df <- do.call("rbind", out[which(names(out)=="gammaProps")])
-   gamma_df$scenario<-w
-   write.csv(gamma_df,paste0("SPIM_gammaResults_scenario",w,
-                               "_N",parm_combos$N.inds[w],
-                               "_p0",parm_combos$p0[w],
-                               "_coh",parm_combos$cohesion[w],
-                               "_agg",parm_combos$aggregation[w],
-                               "_",paste(whichIDS,collapse=""),
-                               ".csv"))
-   
-   PID_list<-out[which(names(out)=="PID")]
-   saveRDS(PID_list,paste0("SPIM_PID_scenario",w,
-                           "_N",parm_combos$N.inds[w],
-                           "_p0",parm_combos$p0[w],
-                           "_coh",parm_combos$cohesion[w],
-                           "_agg",parm_combos$aggregation[w],
-                           "_",paste(whichIDS,collapse=""),
-                           ".rds"))
-   
+  
+  gamma_df <- do.call("rbind", out[which(names(out)=="gammaProps")])
+  gamma_df$scenario<-w
+  write.csv(gamma_df,paste0("SPIM_gammaResults_scenario",w,
+                            "_N",parm_combos$N.inds[w],
+                            "_p0",parm_combos$p0[w],
+                            "_coh",parm_combos$cohesion[w],
+                            "_agg",parm_combos$aggregation[w],
+                            "_",paste(whichIDS,collapse=""),
+                            ".csv"))
+  
+  PID_list<-out[which(names(out)=="PID")]
+  saveRDS(PID_list,paste0("SPIM_PID_scenario",w,
+                          "_N",parm_combos$N.inds[w],
+                          "_p0",parm_combos$p0[w],
+                          "_coh",parm_combos$cohesion[w],
+                          "_agg",parm_combos$aggregation[w],
+                          "_",paste(whichIDS,collapse=""),
+                          ".rds"))
+  
   stopImplicitCluster()
 }
-

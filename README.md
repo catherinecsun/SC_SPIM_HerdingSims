@@ -29,13 +29,15 @@ To do:
 - for coverage plots, consider ribbons connecting the maxes to maxes and mins to mins, rather than a line segment through the median/mean
 - reorder the factors for SC, SPIM: 4 , and SPIM: 3
 - figure out a way to quantify the amount of ID info given pop size and partial id covs.. (read ben's paper and also L. Waits)
+- connect with somebody about my PID calculations.
+
 
 Finished:
 - run antler +  sex +  coat +  collar
 - run sex +  coat  + collar
 - sex  + coat, SPIM
+- collar + sex, SPIM
 
 Run:
-- collar + sex, SPIM
 - collar, SPIM
 - sex, SPIM
