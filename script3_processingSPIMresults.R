@@ -3,6 +3,7 @@ library(plyr)
 library(ggplot2)
 library(ggpubr)
 library(Metrics)
+library(RColorBrewer)
 
 ####custom bootstrap function####
 ###maybe this is making it too complicated..
@@ -594,21 +595,12 @@ plot_sig_cv_SPIM<-ggplot(SPIMresults[SPIMresults$param=="sigma",],
 
 #temporarily manipulate the coverage data so that they dont overlap when plotted
 coverages_boot_SPIM$aggregation<-as.numeric(levels(coverages_boot_SPIM$aggregation))[coverages_boot_SPIM$aggregation]
-coverages_boot_SPIM$aggregation[coverages_boot_SPIM$PID=="collar"]<-coverages_boot_SPIM$aggregation[coverages_boot_SPIM$PID=="collar"]-0.9
-coverages_boot_SPIM$aggregation[coverages_boot_SPIM$PID=="sex"]<-coverages_boot_SPIM$aggregation[coverages_boot_SPIM$PID=="sex"]-0.6
-coverages_boot_SPIM$aggregation[coverages_boot_SPIM$PID=="sexcollar"]<-coverages_boot_SPIM$aggregation[coverages_boot_SPIM$PID=="sexcollar"]-0.3
-coverages_boot_SPIM$aggregation[coverages_boot_SPIM$PID=="sexcoat"]<-coverages_boot_SPIM$aggregation[coverages_boot_SPIM$PID=="sexcoat"]+0.3
-coverages_boot_SPIM$aggregation[coverages_boot_SPIM$PID=="sexcollarcoat"]<-coverages_boot_SPIM$aggregation[coverages_boot_SPIM$PID=="sexcollarcoat"]+0.6
-coverages_boot_SPIM$aggregation[coverages_boot_SPIM$PID=="antlerssexcollarcoat"]<-coverages_boot_SPIM$aggregation[coverages_boot_SPIM$PID=="antlerssexcollarcoat"]+0.9
-
 coverages_calc_SPIM$aggregation<-as.numeric(levels(coverages_calc_SPIM$aggregation))[coverages_calc_SPIM$aggregation]
-coverages_calc_SPIM$aggregation[coverages_calc_SPIM$PID=="collar"]<-coverages_calc_SPIM$aggregation[coverages_calc_SPIM$PID=="collar"]-0.9
-coverages_calc_SPIM$aggregation[coverages_calc_SPIM$PID=="sex"]<-coverages_calc_SPIM$aggregation[coverages_calc_SPIM$PID=="sex"]-0.6
-coverages_calc_SPIM$aggregation[coverages_calc_SPIM$PID=="sexcollar"]<-coverages_calc_SPIM$aggregation[coverages_calc_SPIM$PID=="sexcollar"]-0.3
-coverages_calc_SPIM$aggregation[coverages_calc_SPIM$PID=="sexcoat"]<-coverages_calc_SPIM$aggregation[coverages_calc_SPIM$PID=="sexcoat"]+0.3
-coverages_calc_SPIM$aggregation[coverages_calc_SPIM$PID=="sexcollarcoat"]<-coverages_calc_SPIM$aggregation[coverages_calc_SPIM$PID=="sexcollarcoat"]+0.6
-coverages_calc_SPIM$aggregation[coverages_calc_SPIM$PID=="antlerssexcollarcoat"]<-coverages_calc_SPIM$aggregation[coverages_calc_SPIM$PID=="antlerssexcollarcoat"]+0.9
-
+coverages_calc_SPIM$PID<-factor(coverages_calc_SPIM$PID,
+                                levels=c("collar","sex",
+                                         "sexcollar","sexcoat",
+                                         "sexcollarcoat",
+                                         "antlerssexcollarcoat"))
 
 plot_N_coverage_SPIM<-ggplot()+
   #dont use this in the ggplot() because the idea of bootstrapping is confusing
@@ -616,11 +608,13 @@ plot_N_coverage_SPIM<-ggplot()+
                              #aes(x=aggregation, y=coverage, group=PID)) +#
   geom_hline(yintercept = 0.95,lty=2,)+
   geom_point(data=coverages_calc_SPIM[coverages_calc_SPIM$param=="N",], 
-             size=3,
+             size=3,position=position_dodge(width=2),
              aes(x=aggregation, y=coverage,
-                 shape=PID,group=cohesion,color=PID))+
+                 shape=PID,group=PID,color=PID))+ #group=cohesion
   geom_line(data=coverages_calc_SPIM[coverages_calc_SPIM$param=="N",],
-            aes(x=aggregation, y=coverage, group=PID,color=PID))+ 
+           aes(x=aggregation, y=coverage, group=PID,color=PID),
+           position=position_dodge(width=2))+
+  scale_color_brewer(palette="Blues")+
   # and with no bootstrap info, the bootstrapped range of coverage is unncessary
   # stat_summary(fun.min = function(x) min(x),
   #              fun.max = function(x) max(x),
@@ -641,16 +635,18 @@ plot_sigma_coverage_SPIM<-ggplot() +
   #coverages_boot_SPIM[coverages_boot_SPIM$param=="sigma",], 
   #aes(x=aggregation, y=coverage, group=PID)
   geom_point(data=coverages_calc_SPIM[coverages_calc_SPIM$param=="sigma",], 
-             size=3,
+             size=3,position=position_dodge(width=2),
              aes(x=aggregation, y=coverage,
-                 shape=PID,group=cohesion,color=PID))+
+                 shape=PID,group=PID,color=PID))+
   geom_line(data=coverages_calc_SPIM[coverages_calc_SPIM$param=="sigma",],
+            position=position_dodge(width=2),
             aes(x=aggregation, y=coverage, group=PID,color=PID))+ 
   # and with no bootstrap info, the bootstrapped range of coverage is unncessary
   # stat_summary(fun.min = function(x) min(x), 
   #              fun.max = function(x) max(x), 
   #              geom = "linerange",size=1,
   #              aes(color=PID),show.legend = FALSE) +
+  scale_color_brewer(palette="Blues")+
   scale_x_continuous(breaks=c(1,4,10),labels=c(1,4,10))+
   facet_grid(rows=vars(p0),cols=vars(cohesion),
              labeller=labeller(p0 = p0.labs, cohesion=coh.labs),
@@ -661,16 +657,6 @@ plot_sigma_coverage_SPIM<-ggplot() +
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.border = element_rect(colour = "black", fill = NA))
-
-
-#return coverage data so that they dont overlap when plotted
-coverages_boot_SPIM$aggregation[coverages_boot_SPIM$PID=="sexcollarcoat"]<-coverages_boot_SPIM$aggregation[coverages_boot_SPIM$PID=="sexcollarcoat"]+0.6
-coverages_boot_SPIM$aggregation[coverages_boot_SPIM$PID=="sexcoat"]<-coverages_boot_SPIM$aggregation[coverages_boot_SPIM$PID=="sexcoat"]-0.8
-coverages_boot_SPIM$aggregation<-as.factor(coverages_boot_SPIM$aggregation)
-
-coverages_calc_SPIM$aggregation[coverages_calc_SPIM$PID=="sexcollarcoat"]<-coverages_calc_SPIM$aggregation[coverages_calc_SPIM$PID=="sexcollarcoat"]+0.6
-coverages_calc_SPIM$aggregation[coverages_calc_SPIM$PID=="sexcoat"]<-coverages_calc_SPIM$aggregation[coverages_calc_SPIM$PID=="sexcoat"]-0.8
-coverages_calc_SPIM$aggregation<-as.factor(coverages_calc_SPIM$aggregation)
 
 ### all plots
 

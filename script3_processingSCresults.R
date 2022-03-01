@@ -31,7 +31,7 @@ SCresults<-SCresults[,-1]
 table(SCresults$scenario)
 
 #remove any sims that didnt converge
-which(SCresults$Rhat_pt>1.2)
+which(SCresults$Rhat_pt>1.1)
 convergeFail<-unique(SCresults[which(SCresults$Rhat_pt>1.1),colnames(SCresults)%in%c("scenario","sim")])
 convergeFail
 convergeFail_remove<-c()
@@ -475,27 +475,24 @@ plot_sig_rmse_SC_alt<-ggplot(SCresults[SCresults$param=="sigma",],
 
 #temporarily manipulate the coverage data so that they dont overlap when plotted
 coverages_boot_SC$aggregation<-as.numeric(levels(coverages_boot_SC$aggregation))[coverages_boot_SC$aggregation]
-coverages_boot_SC$aggregation[coverages_boot_SC$cohesion==0]<-coverages_boot_SC$aggregation[coverages_boot_SC$cohesion==0]-0.6
-coverages_boot_SC$aggregation[coverages_boot_SC$cohesion==0.3]<-coverages_boot_SC$aggregation[coverages_boot_SC$cohesion==0.3]-0.3
-coverages_boot_SC$aggregation[coverages_boot_SC$cohesion==1]<-coverages_boot_SC$aggregation[coverages_boot_SC$cohesion==1]+0.3
-
 coverages_calc_SC$aggregation<-as.numeric(levels(coverages_calc_SC$aggregation))[coverages_calc_SC$aggregation]
-coverages_calc_SC$aggregation[coverages_calc_SC$cohesion==0]<-coverages_calc_SC$aggregation[coverages_calc_SC$cohesion==0]-0.6
-coverages_calc_SC$aggregation[coverages_calc_SC$cohesion==0.3]<-coverages_calc_SC$aggregation[coverages_calc_SC$cohesion==0.3]-0.3
-coverages_calc_SC$aggregation[coverages_calc_SC$cohesion==1]<-coverages_calc_SC$aggregation[coverages_calc_SC$cohesion==1]+0.3
 
-
-plot_N_coverage_SC<-ggplot(data=coverages_boot_SC[coverages_boot_SC$param=="N",], aes(x=aggregation, y=coverage,group=cohesion)) + # 
+plot_N_coverage_SC<-ggplot() + # 
+  #data=coverages_boot_SC[coverages_boot_SC$param=="N",],
+  #aes(x=aggregation, y=coverage,group=cohesion)
+  geom_hline(yintercept = 0.95,lty=2,)+
+  geom_line(data=coverages_calc_SC[coverages_calc_SC$param=="N",],
+            aes(x=aggregation, y=coverage, group=cohesion))+#,color=cohesion))+
   geom_point(data=coverages_calc_SC[coverages_calc_SC$param=="N",], size=3,
-             aes(x=aggregation, y=coverage,
-                 shape=cohesion,group=cohesion,color=cohesion))+
-  stat_summary(fun.min = function(x) min(x), 
-               fun.max = function(x) max(x), 
-               geom = "linerange",size=1,
-               aes(color=cohesion),show.legend = FALSE) +
-  scale_x_continuous(breaks=c(1,4,10),labels=c(1,4,10))+
-  facet_grid(rows=vars(p0),cols=vars(cohesion),labeller=labeller(p0 = p0.labs,
-                                                                 cohesion=coh.labs))+
+             aes(x=aggregation, y=coverage,group=cohesion),pch=21,fill="white")+#shape=cohesion,color=cohesion))+
+  # stat_summary(fun.min = function(x) min(x), 
+  #              fun.max = function(x) max(x), 
+  #              geom = "linerange",size=1,
+  #              aes(color=cohesion),show.legend = FALSE) +
+  # scale_x_continuous(breaks=c(1,4,10),labels=c(1,4,10))+
+  facet_grid(rows=vars(p0),cols=vars(cohesion),
+             labeller=labeller(p0 = p0.labs, cohesion=coh.labs),
+             scales="free")+
   labs(title="Abundance (N)", x="Aggregation (Group Size)",
        y="Coverage")+
   theme_bw()+
@@ -505,17 +502,22 @@ plot_N_coverage_SC<-ggplot(data=coverages_boot_SC[coverages_boot_SC$param=="N",]
         panel.border = element_rect(colour = "black", fill = NA))
 
 
-plot_sigma_coverage_SC<-ggplot(data=coverages_boot_SC[coverages_boot_SC$param=="sigma",], aes(x=aggregation, y=coverage,group=cohesion)) + # 
+plot_sigma_coverage_SC<-ggplot() + # 
+  #data=coverages_boot_SC[coverages_boot_SC$param=="sigma",], aes(x=aggregation, y=coverage,group=cohesion)
+  geom_hline(yintercept = 0.95,lty=2,)+
+  geom_line(data=coverages_calc_SC[coverages_calc_SC$param=="sigma",],
+            aes(x=aggregation, y=coverage, group=cohesion))+#,color=cohesion))+
   geom_point(data=coverages_calc_SC[coverages_calc_SC$param=="sigma",], size=3,
-             aes(x=aggregation, y=coverage,
-                 shape=cohesion,group=cohesion,color=cohesion))+
-  stat_summary(fun.min = function(x) min(x), 
-               fun.max = function(x) max(x), 
-               geom = "linerange",size=1,
-               aes(color=cohesion),show.legend = FALSE) +
-  scale_x_continuous(breaks=c(1,4,10),labels=c(1,4,10))+
-  facet_grid(rows=vars(p0),cols=vars(cohesion),labeller=labeller(p0 = p0.labs,
-                                                                 cohesion=coh.labs))+
+             pch=21,fill="white",
+             aes(x=aggregation, y=coverage,group=cohesion))+#, shape=cohesion,color=cohesion))+
+  # stat_summary(fun.min = function(x) min(x), 
+  #              fun.max = function(x) max(x), 
+  #              geom = "linerange",size=1,
+  #              aes(color=cohesion),show.legend = FALSE) +
+  #scale_x_continuous(breaks=c(1,4,10),labels=c(1,4,10))+
+  facet_grid(rows=vars(p0),cols=vars(cohesion),
+             labeller=labeller(p0 = p0.labs, cohesion=coh.labs),
+             scales="free")+
   labs(title="Sigma (\u03c3)", x="Aggregation (Group Size)",
        y="Coverage")+
   theme_bw()+
@@ -523,14 +525,3 @@ plot_sigma_coverage_SC<-ggplot(data=coverages_boot_SC[coverages_boot_SC$param=="
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.border = element_rect(colour = "black", fill = NA))
-
-#return coverage data so aggregation values are correct. 
-coverages_boot_SC$aggregation[coverages_boot_SC$cohesion==0]<-coverages_boot_SC$aggregation[coverages_boot_SC$cohesion==0]+0.6
-coverages_boot_SC$aggregation[coverages_boot_SC$cohesion==0.3]<-coverages_boot_SC$aggregation[coverages_boot_SC$cohesion==0.3]+0.3
-coverages_boot_SC$aggregation[coverages_boot_SC$cohesion==1]<-coverages_boot_SC$aggregation[coverages_boot_SC$cohesion==1]-0.3
-coverages_boot_SC$aggregation<-as.factor(coverages_boot_SC$aggregation)
-
-coverages_calc_SC$aggregation[coverages_calc_SC$cohesion==0]<-coverages_calc_SC$aggregation[coverages_calc_SC$cohesion==0]+0.6
-coverages_calc_SC$aggregation[coverages_calc_SC$cohesion==0.3]<-coverages_calc_SC$aggregation[coverages_calc_SC$cohesion==0.3]+0.3
-coverages_calc_SC$aggregation[coverages_calc_SC$cohesion==1]<-coverages_calc_SC$aggregation[coverages_calc_SC$cohesion==1]-0.3
-coverages_calc_SC$aggregation<-as.factor(coverages_calc_SC$aggregation)
