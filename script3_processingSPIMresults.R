@@ -27,7 +27,7 @@ whichPartialIDS<-list("_collar","_sex",
                       paste(c("_","sex","collar","coat"),collapse=""),
                       paste(c("_","antlers","sex","collar","coat"),collapse=""))
 
-#do we any missing results for those Parameter ID combinations?
+#did we any missing results for those Parameter ID combinations?
 for(p in length(whichPartialIDS)){
   scenariosDone<-length(which(endsWith(results_SPIM,paste0(whichPartialIDS[[p]],".csv"))))
   if(scenariosDone<18){
@@ -457,6 +457,7 @@ rm(plot_N,plot_N_alt,plot_N_rb,plot_N_rb_alt,plot_N_cv,plot_N_cv_alt,
 
 #### all scenarios all together now
 SPIMresults$PID<-factor(SPIMresults$PID,levels=unique( unique(SPIMresults$PID)))
+
 #median and means
 plot_Nmed_SPIM<-ggplot(SPIMresults[SPIMresults$param=="N",],
        aes(x=aggregation, y=X50.,color=PID)) + 
@@ -469,7 +470,7 @@ plot_Nmed_SPIM<-ggplot(SPIMresults[SPIMresults$param=="N",],
      theme_bw()+
      theme(plot.title = element_text(hjust = 0.5),
            panel.grid.major = element_blank(), panel.grid.minor = element_blank())#,
- 
+
 plot_Nmean_SPIM<-ggplot(SPIMresults[SPIMresults$param=="N",],
                        aes(x=aggregation, y=Mean,color=PID)) + 
   geom_boxplot()+
@@ -509,6 +510,7 @@ plot_sigmaMean_SPIM<-ggplot(SPIMresults[SPIMresults$param=="sigma",],
 
 
 #rb
+
 plot_N_rb_SPIM<-ggplot(SPIMresults[SPIMresults$param=="N",],
        aes(x=aggregation, y=RB,color=PID)) + 
   geom_boxplot()+
@@ -520,6 +522,7 @@ plot_N_rb_SPIM<-ggplot(SPIMresults[SPIMresults$param=="N",],
   theme_bw()+
   theme(plot.title = element_text(hjust = 0.5),
         panel.grid.major = element_blank(), panel.grid.minor = element_blank())#,
+
 
 plot_sigma_rb_SPIM<-ggplot(SPIMresults[SPIMresults$param=="sigma",],
                   aes(x=aggregation, y=RB,color=PID)) + 
@@ -547,6 +550,7 @@ plot_N_cv_SPIM<-ggplot(SPIMresults[SPIMresults$param=="N",],
   theme_bw()+
   theme(plot.title = element_text(hjust = 0.5),
         panel.grid.major = element_blank(), panel.grid.minor = element_blank())#,
+
 
 plot_sig_cv_SPIM<-ggplot(SPIMresults[SPIMresults$param=="sigma",],
                         aes(x=aggregation, y=CoV,color=PID)) + 

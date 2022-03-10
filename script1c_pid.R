@@ -224,7 +224,7 @@ combos<-rbind.fill(combos_1,combos_2,combos_3,combos_4)
 # 4: antler, sex, coat, collar
 # 3: sex, collar, coat
 # 2: sex, coat
-combos[c(15,14,9),]
+combos[c(15,14,9,10,3,4),]
 
 colors <- c("Antlers" = "red", "Coat" = "blue",
             "Sex"="green","Collar" = "gray")
@@ -245,7 +245,7 @@ ggplot()+
   stat_summary(data=combos[combos$Collar==1,],
                aes(x=nIDs,y=Probs_unique,color="Collar"),
                fun = mean, geom = "line")+
-  geom_point(data=combos[c(15,14,9),],aes(x=nIDs, y=Probs_unique,shape="Evaluated"),size=4)+
+  geom_point(data=combos[c(15,14,9,10,3,4),],aes(x=nIDs, y=Probs_unique,shape="Evaluated"),size=4)+
   geom_point(data=combos,aes(x=nIDs, y=Probs_unique,shape="Combinations"),size=3)+
   ylim(c(0,1))+
   labs(title="Theoretical Expected Probability of Identity ",

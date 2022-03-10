@@ -78,7 +78,7 @@ plot_N_rb<-ggplot(temp[temp$param=="N",],
   geom_boxplot(position=position_dodge(1))+
   geom_hline(yintercept=0, linetype="dashed")+
   ylim(-2,30)+
-  labs(title="Abundance (N)", x="Aggregation (Group Size)",y="RB")+
+  labs(title="Abundance (N)", x="Aggregation (Group Size)",y="Relative Bias")+
   facet_grid(rows=vars(p0),cols=vars(cohesion),switch="y",
              labeller = labeller(p0 = p0.labs,cohesion=coh.labs))+
   theme_bw()+
@@ -91,7 +91,7 @@ plot_sigma_rb<-ggplot(temp[temp$param=="sigma",],
   geom_boxplot(position=position_dodge(1))+
   ylim(-2,3.5)+
   geom_hline(yintercept=0, linetype="dashed", color = "black")+
-  labs(title="Sigma (\u03c3)", x="Aggregation (Group Size)",y="RB")+
+  labs(title="Sigma (\u03c3)", x="Aggregation (Group Size)",y="Relative Bias")+
   facet_grid(rows=vars(p0),cols=vars(cohesion),switch="y",
              labeller = labeller(p0 = p0.labs,cohesion=coh.labs))+
   theme_bw()+
@@ -108,7 +108,7 @@ plot_N_cv<-ggplot(temp[temp$param=="N",],
   geom_boxplot(position=position_dodge(1))+
   geom_hline(yintercept=0, linetype="dashed", color = "black")+
   # scale_color_brewer(palette="Blues")+
-  labs(title="Abundance (N)", x="Aggregation (Group Size)",y="CV")+
+  labs(title="Abundance (N)", x="Aggregation (Group Size)",y="Coefficient of Variation")+
   facet_grid(rows=vars(p0),cols=vars(cohesion),switch="y",
              labeller = labeller(p0 = p0.labs,cohesion=coh.labs))+
   theme_bw()+
@@ -122,7 +122,7 @@ plot_sig_cv<-ggplot(temp[temp$param=="sigma",],
   geom_boxplot(position=position_dodge(1))+
   geom_hline(yintercept=0, linetype="dashed", color = "black")+
   # scale_color_brewer(palette="Blues")+
-  labs(title="Sigma (\u03c3)", x="Aggregation (Group Size)",y="CV")+
+  labs(title="Sigma (\u03c3)", x="Aggregation (Group Size)",y="Coefficient of Variation")+
   facet_grid(rows=vars(p0),cols=vars(cohesion),switch="y",
              labeller = labeller(p0 = p0.labs,cohesion=coh.labs))+
   theme_bw()+

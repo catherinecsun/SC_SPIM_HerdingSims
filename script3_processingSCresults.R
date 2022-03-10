@@ -180,6 +180,7 @@ plot_Nmed_SC_alt<-ggplot(SCresults[SCresults$param=="N",],
   theme(plot.title = element_text(hjust = 0.5),
         panel.grid.major = element_blank(), panel.grid.minor = element_blank())#,
 
+
 # ggplot(SCresults[SCresults$param=="N",],
 #        aes(x=aggregation, y=Median)) + 
 #   geom_boxplot(aes(fill=p0))+
@@ -271,6 +272,7 @@ plot_N_cv_SC<-ggplot(data=SCresults[SCresults$param=="N",])+
        # strip.text.y = element_blank(),
         panel.border = element_rect(colour = "black", fill = NA))
 
+
 plot_N_cv_SC_alt<-ggplot(SCresults[SCresults$param=="N",],
        aes(x=aggregation, y=CoV,color=cohesion)) + 
   geom_hline(aes(yintercept=0),linetype=2,color="black")+ #,  color = "N.inds"
@@ -311,7 +313,6 @@ plot_N_rmse_SC_alt<-ggplot(SCresults[SCresults$param=="N",],
   theme_bw()+
   theme(plot.title = element_text(hjust = 0.5),
         panel.grid.major = element_blank(), panel.grid.minor = element_blank())#,
-
 
 ### plot sigma ####
 plot_sigMed_SC<-ggplot(data=SCresults[SCresults$param=="sigma",])+
@@ -389,7 +390,6 @@ plot_sig_rb_SC<-ggplot(data=SCresults[SCresults$param=="sigma",])+
         strip.text.x = element_blank(),
         panel.border = element_rect(colour = "black", fill = NA))
 
-
 plot_sig_rb_SC_alt<-ggplot(SCresults[SCresults$param=="sigma",],
        aes(x=aggregation, y=RB,color=cohesion)) + 
   geom_boxplot()+
@@ -429,7 +429,6 @@ plot_sig_cv_SC_alt<-ggplot(SCresults[SCresults$param=="sigma",],
   theme_bw()+
   theme(plot.title = element_text(hjust = 0.5),
         panel.grid.major = element_blank(), panel.grid.minor = element_blank())#,
-
 
 plot_sig_cv_SC<-ggplot(data=SCresults[SCresults$param=="sigma",])+
   geom_boxplot(aes(x=aggregation, y=rmse,alpha=cohesion,fill=aggregation))+
@@ -473,7 +472,7 @@ plot_sig_rmse_SC_alt<-ggplot(SCresults[SCresults$param=="sigma",],
 
 ### coverage ####
 
-#temporarily manipulate the coverage data so that they dont overlap when plotted
+# manipulate the coverage data so that they dont overlap when plotted
 coverages_boot_SC$aggregation<-as.numeric(levels(coverages_boot_SC$aggregation))[coverages_boot_SC$aggregation]
 coverages_calc_SC$aggregation<-as.numeric(levels(coverages_calc_SC$aggregation))[coverages_calc_SC$aggregation]
 
@@ -489,7 +488,7 @@ plot_N_coverage_SC<-ggplot() + #
   #              fun.max = function(x) max(x), 
   #              geom = "linerange",size=1,
   #              aes(color=cohesion),show.legend = FALSE) +
-  # scale_x_continuous(breaks=c(1,4,10),labels=c(1,4,10))+
+   scale_x_continuous(breaks=c(1,4,10),labels=c(1,4,10))+
   facet_grid(rows=vars(p0),cols=vars(cohesion),
              labeller=labeller(p0 = p0.labs, cohesion=coh.labs),
              scales="free")+
@@ -514,7 +513,7 @@ plot_sigma_coverage_SC<-ggplot() + #
   #              fun.max = function(x) max(x), 
   #              geom = "linerange",size=1,
   #              aes(color=cohesion),show.legend = FALSE) +
-  #scale_x_continuous(breaks=c(1,4,10),labels=c(1,4,10))+
+  scale_x_continuous(breaks=c(1,4,10),labels=c(1,4,10))+
   facet_grid(rows=vars(p0),cols=vars(cohesion),
              labeller=labeller(p0 = p0.labs, cohesion=coh.labs),
              scales="free")+
@@ -525,4 +524,29 @@ plot_sigma_coverage_SC<-ggplot() + #
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.border = element_rect(colour = "black", fill = NA))
-#wow
+
+#all plots
+plot_Nmed_SC
+plot_Nmed_SC_alt
+plot_Nmean_SC
+plot_Nmean_SC_alt
+plot_N_rb_SC
+plot_N_rb_SC_alt
+plot_N_cv_SC
+plot_N_cv_SC_alt
+plot_N_rmse_SC
+plot_N_rmse_SC_alt
+
+plot_sigMed_SC
+plot_sigMed_SC_alt
+plot_sigMean_SC
+plot_sigMean_SC_alt
+plot_sig_rb_SC
+plot_sig_rb_SC_alt
+plot_sig_cv_SC
+plot_sig_cv_SC_alt
+plot_sig_cv_SC
+plot_sig_rmse_SC_alt
+
+plot_N_coverage_SC
+plot_sigma_coverage_SC
