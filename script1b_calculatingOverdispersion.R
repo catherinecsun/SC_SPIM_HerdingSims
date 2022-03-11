@@ -133,6 +133,3 @@ plot_chat
 
 
 
-### relative variance ####
-# the ratio of the empirical variance amount simulations for any give scenario
-# and the variance associated with the independent scenario
