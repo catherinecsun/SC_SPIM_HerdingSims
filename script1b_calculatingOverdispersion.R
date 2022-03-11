@@ -84,6 +84,24 @@ chat_df_long$aggregation<-as.factor(chat_df_long$aggregation)
 chat_df_long%>%group_by(scenario)%>%summarize(mean=mean(chat))
 str(chat_df_long)
 
+
+
+chat_StatsSum<-chat_df_long%>%group_by(scenario,p0,aggregation,cohesion)%>%
+  summarize(#p0,aggregation, cohesion,
+    min(chat),
+    mean(chat),
+    max(chat),
+    sd(chat))
+
+#make chat_StatsSum into pretty tables
+chat_StatsSum_Wide<-chat_StatsSum[,which(colnames(chat_StatsSum)%in% c("mean(chat)","sd(chat)","p0","cohesion","aggregation"))]
+chat_StatsSum_Wide$chat<-paste0(round(chat_StatsSum_Wide$`mean(chat)`,1)," (",round(chat_StatsSum_Wide$`sd(chat)`,1),")")
+chat_StatsSum_Wide<-chat_StatsSum_Wide[,-c(4,5)]
+chat_StatsSum_Wide<-pivot_wider(chat_StatsSum_Wide,names_from = cohesion,values_from = chat)
+chat_StatsSum_Wide<-chat_StatsSum_Wide[order(chat_StatsSum_Wide$p0),]
+
+
+
 #plot
 ggplot(data=chat_df_long,aes(x=cohesion, y=chat))+
   geom_boxplot()+
@@ -100,6 +118,7 @@ coh.labs <- c("Cohesion: 0","Cohesion: 0.3", "Cohesion: 0.67", "Cohesion: 1")
 names(coh.labs) <- c("0","0.3", "0.67", "1")
 
 plot_chat<-ggplot(data=chat_df_long,aes(x=aggregation, y=chat))+
+  geom_hline(yintercept=1,lty=2)+
   geom_boxplot(aes(fill=as.factor(p0)))+ #notch=TRUE
   facet_grid(cols=vars(cohesion), #rows=vars(p0),
              labeller = labeller(cohesion=coh.labs))+ #switch = "y" p0 = p0.labs,
@@ -112,3 +131,8 @@ plot_chat<-ggplot(data=chat_df_long,aes(x=aggregation, y=chat))+
         panel.border = element_rect(colour = "black", fill = NA))
 plot_chat   
 
+
+
+### relative variance ####
+# the ratio of the empirical variance amount simulations for any give scenario
+# and the variance associated with the independent scenario

@@ -333,27 +333,35 @@ saveRDS(sim_data, file = "simulatedData_from24Scenarios.rds")
 
 sim_data_Stats<-data.frame(scenario=NA,sim=NA,
                            p0=NA,aggregation=NA, cohesion=NA,
-                           ninds=NA, ntraps=NA)
+                           ndets=NA,ninds=NA, ntraps=NA)
 for(p in 1:length(sim_data)){
   print(p)
   for (s in 1:length(sim_data[[p]])){
     tmp_data<-sim_data[[p]][[s]]
     
+    # number of total detetions
+    temp_ndets<-sum(tmp_data$capthist)
+    
     # number of detected individuals
     tmp_ninds<-dim(tmp_data$capthist)[1]
+    
     # number of traps that detected individuals
     tmp_ntraps<-length(which(colSums(apply(tmp_data$capthist,c(2,3),sum))>0))
     
     sim_data_Stats<-rbind(sim_data_Stats,
                           c(p,s,
                             tmp_data$parms$p0,tmp_data$parms$group.size,tmp_data$parms$cohesion,
-                            tmp_ninds,tmp_ntraps))
+                            temp_ndets,tmp_ninds,tmp_ntraps))
   }
 }
 sim_data_Stats<-sim_data_Stats[-1,]
 
 sim_data_StatsSum<-sim_data_Stats%>%group_by(scenario)%>%
   summarize(#p0,aggregation, cohesion,
+    min(ndets),
+    mean(ndets),
+    max(ndets),
+    sd(ndets),
     min(ninds),
     mean(ninds),
     max(ninds),
@@ -366,14 +374,45 @@ sim_data_StatsSum$p0<-parm_combos$p0
 sim_data_StatsSum$cohesion<-parm_combos$cohesion
 sim_data_StatsSum$aggregation<-parm_combos$aggregation
 
+#make sim_data_StatsSum into pretty tables
+sim_data_StatsSum_ndetWide<-sim_data_StatsSum[,which(colnames(sim_data_StatsSum)%in% c("mean(ndets)","sd(ndets)","p0","cohesion","aggregation"))]
+sim_data_StatsSum_ndetWide$ndets<-paste0(round(sim_data_StatsSum_ndetWide$`mean(ndets)`,0)," (",round(sim_data_StatsSum_ndetWide$`sd(ndets)`,0),")")
+sim_data_StatsSum_ndetWide<-sim_data_StatsSum_ndetWide[,3:ncol(sim_data_StatsSum_ndetWide)]
+sim_data_StatsSum_ndetWide<-pivot_wider(sim_data_StatsSum_ndetWide,names_from = cohesion,values_from = ndets)
+sim_data_StatsSum_ndetWide<-sim_data_StatsSum_ndetWide[order(sim_data_StatsSum_ndetWide$p0),]
+
+sim_data_StatsSum_nindWide<-sim_data_StatsSum[,which(colnames(sim_data_StatsSum)%in% c("mean(ninds)","sd(ninds)","p0","cohesion","aggregation"))]
+sim_data_StatsSum_nindWide$ninds<-paste0(round(sim_data_StatsSum_nindWide$`mean(ninds)`,0)," (",round(sim_data_StatsSum_nindWide$`sd(ninds)`,0),")")
+sim_data_StatsSum_nindWide<-sim_data_StatsSum_nindWide[,3:ncol(sim_data_StatsSum_nindWide)]
+sim_data_StatsSum_nindWide<-pivot_wider(sim_data_StatsSum_nindWide,names_from = cohesion,values_from = ninds)
+sim_data_StatsSum_nindWide<-sim_data_StatsSum_nindWide[order(sim_data_StatsSum_nindWide$p0),]
+
+sim_data_StatsSum_ntrapsWide<-sim_data_StatsSum[,which(colnames(sim_data_StatsSum)%in% c("mean(ntraps)","sd(ntraps)","p0","cohesion","aggregation"))]
+sim_data_StatsSum_ntrapsWide$ntraps<-paste0(round(sim_data_StatsSum_ntrapsWide$`mean(ntraps)`,0)," (",round(sim_data_StatsSum_ntrapsWide$`sd(ntraps)`,0),")")
+sim_data_StatsSum_ntrapsWide<-sim_data_StatsSum_ntrapsWide[,3:ncol(sim_data_StatsSum_ntrapsWide)]
+sim_data_StatsSum_ntrapsWide<-pivot_wider(sim_data_StatsSum_ntrapsWide,names_from = cohesion,values_from = ntraps)
+sim_data_StatsSum_ntrapsWide<-sim_data_StatsSum_ntrapsWide[order(sim_data_StatsSum_ntrapsWide$p0),]
 
 ###plots 
 
 p0.labs <- c("p0: 0.05", "p0: 0.20")
 names(p0.labs) <- c("0.05", "0.2")
 
-coh.labs <- c("Cohesion: 0","Cohesion: 0.3", "Cohesion: 0.67", "Cohesion: 1")
+coh.labs <- c("imdataCohesion: 0","Cohesion: 0.3", "Cohesion: 0.67", "Cohesion: 1")
 names(coh.labs) <- c("0","0.3", "0.67", "1")
+
+plot_ndets<-ggplot(data=sim_data_Stats,aes(x=as.factor(aggregation),y=ndets))+
+  geom_boxplot(aes(fill=as.factor(p0)))+
+  facet_grid(cols=vars(cohesion), #rows=vars(p0),
+             labeller = labeller(cohesion=coh.labs))+ #switch = "y" p0 = p0.labs,
+  labs(title="Number of Detections",
+       x="Aggregation (Group Size)",y="n",fill="Detection \nProbability")+theme_bw()+ 
+  theme(plot.title = element_text(hjust = 0.5), 
+        #panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        strip.background = element_blank(),
+        panel.border = element_rect(colour = "black", fill = NA))
+plot_ninds
 
 plot_ninds<-ggplot(data=sim_data_Stats,aes(x=as.factor(aggregation),y=ninds))+
   geom_boxplot(aes(fill=as.factor(p0)))+
