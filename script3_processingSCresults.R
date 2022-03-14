@@ -70,7 +70,7 @@ SCresults$aggregation<-as.factor(SCresults$aggregation)
 
 
 ### relative bias  ####
-#(truth-estimate)/estimate
+#(estimated-truth)/truth
 area<-(range(sim_data[[1]][[1]]$mask[,1])[2]-range(sim_data[[1]][[1]]$mask[,1])[1])*
   (range(sim_data[[1]][[1]]$mask[,2])[2]-range(sim_data[[1]][[1]]$mask[,2])[1])
 truth<-c("D"=N.inds/area,"N"=N.inds,"psi"=N.inds/M,"sigma"=3) #"lam0"=c(0.05,0.20),
@@ -78,7 +78,7 @@ truth<-c("D"=N.inds/area,"N"=N.inds,"psi"=N.inds/M,"sigma"=3) #"lam0"=c(0.05,0.2
 SCresults$Truth[which(SCresults$param%in%names(truth))]<-truth[match(SCresults$param[which(SCresults$param%in%names(truth))],names(truth))]
 SCresults$Truth[which(SCresults$param=="lam0"&SCresults$scenario %% 2 == 0)]<-0.2
 SCresults$Truth[which(SCresults$param=="lam0"&SCresults$scenario %% 2 == 1)]<-0.05
-SCresults$RB<-(SCresults$Truth-SCresults$Mean)/SCresults$Mean
+SCresults$RB<-(SCresults$Mean-SCresults$Truth)/SCresults$Truth
   
 
 ### Coefficient of Variation, precision ####

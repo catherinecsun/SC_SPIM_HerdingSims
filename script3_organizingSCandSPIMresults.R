@@ -40,10 +40,61 @@ temp<-temp[temp$Model=="SC"|temp$PID%in%PID,]
 temp$Model[!temp$Model=="SC"]<-paste0("SPIM: ",temp$Model[!temp$Model=="SC"])
 temp$Model<-factor(temp$Model,
                    levels=c("SC",unique(temp$Model)[!startsWith(unique(temp$Model),"SC")]))
+###########summaries##########
+#RB
+summaryRB<-temp%>%
+  group_by(Model,param,p0,aggregation,cohesion)%>%
+  summarize(RB_min=min(RB),
+            RB_mean=mean(RB),
+            RB_max=max(RB),
+            RB_SD=sd(RB))
 
+summaryRB$RB<-paste0(round(summaryRB$RB_min,2),"-",round(summaryRB$RB_max,2)," ; ",
+                     round(summaryRB$RB_mean,2)," (",round(summaryRB$RB_SD,2),")")
+
+summaryRB_N_wide<-summaryRB[summaryRB$param=="N",][,c(1,3,4,5,10)]
+summaryRB_N_wide<-pivot_wider(summaryRB_N_wide,names_from=cohesion,values_from = RB)
+write.csv(summaryRB_N_wide,"summaryRB_N_wide.csv")
+
+summaryRB_Sigma_wide<-summaryRB[summaryRB$param=="sigma",][,c(1,3,4,5,10)]
+summaryRB_Sigma_wide<-pivot_wider(summaryRB_Sigma_wide,names_from=cohesion,values_from = RB)
+write.csv(summaryRB_Sigma_wide,"summaryRB_Sigma_wide.csv")
+
+#CV
+summaryCV<-temp%>%
+  group_by(Model,param,p0,aggregation,cohesion)%>%
+  summarize(CV_min=min(CoV),
+            CV_mean=mean(CoV),
+            CV_max=max(CoV),
+            CV_SD=sd(CoV))
+
+summaryCV$CV<-paste0(round(summaryCV$CV_min,2),"-",round(summaryCV$CV_max,2)," ; ",
+                     round(summaryCV$CV_mean,2)," (",round(summaryCV$CV_SD,2),")")
+
+summaryCV_N_wide<-summaryCV[summaryCV$param=="N",][,c(1,3,4,5,10)]
+summaryCV_N_wide<-pivot_wider(summaryCV_N_wide,names_from=cohesion,values_from = CV)
+write.csv(summaryCV_N_wide,"summaryCV_N_wide.csv")
+
+summaryCV_Sigma_wide<-summaryCV[summaryCV$param=="sigma",][,c(1,3,4,5,10)]
+summaryCV_Sigma_wide<-pivot_wider(summaryCV_Sigma_wide,names_from=cohesion,values_from = CV)
+write.csv(summaryCV_Sigma_wide,"summaryCV_Sigma_wide.csv")
+
+
+#Coverage
+coverages_calc_wide<-coverages_calc[,-which(colnames(coverages_calc_wide)%in%c("PID","antler","sex","collar","coat"))]
+coverages_calc_wide[coverages_calc_wide$param=="N"&coverages_calc_wide$Model=="SC",]
+coverages_calc_wide[coverages_calc_wide$param=="sigma"&coverages_calc_wide$Model=="SC",]
+
+write.csv(coverages_calc_wide,"coverages_calc_wide.csv")
+
+
+
+##### plot####
 colBluefunc <- colorRampPalette(c("lightblue","blue"))
 colBluefunc(length(levels(temp$Model))-1)
 cbbPalette <- c("white",colBluefunc(length(levels(temp$Model))-1))# "#E69F00", "#56B4E9", "#009E73", "#F0E442")
+
+
 
 #comparing SC ad SPIM for the actual estimates
 plot_Nmed<-ggplot(temp[temp$param=="N",],
@@ -72,13 +123,20 @@ plot_sigmaMed<-ggplot(temp[temp$param=="sigma",],
 
 
 #rb
+temp[temp$param=="N",]%>%
+  group_by(p0,cohesion,aggregation)%>%
+  summarize(RB_min=min(RB),
+            RB_max=max(RB),
+            RB_mean=mean(RB),
+            RB_SD=sd(RB))
 plot_N_rb<-ggplot(temp[temp$param=="N",],
                        aes(x=aggregation, y=RB,fill=Model)) + 
   scale_fill_manual(values=cbbPalette)+
   geom_boxplot(position=position_dodge(1))+
   geom_hline(yintercept=0, linetype="dashed")+
-  ylim(-2,30)+
-  labs(title="Abundance (N)", x="Aggregation (Group Size)",y="Relative Bias")+
+ # ylim(-2,30)+
+  labs(#title="Abundance (N)",
+    x="Aggregation (Group Size)",y="Relative Bias")+
   facet_grid(rows=vars(p0),cols=vars(cohesion),switch="y",
              labeller = labeller(p0 = p0.labs,cohesion=coh.labs))+
   theme_bw()+
@@ -89,7 +147,7 @@ plot_sigma_rb<-ggplot(temp[temp$param=="sigma",],
                            aes(x=aggregation, y=RB,fill=Model)) + 
   scale_fill_manual(values=cbbPalette)+
   geom_boxplot(position=position_dodge(1))+
-  ylim(-2,3.5)+
+ # ylim(-2,3.5)+
   geom_hline(yintercept=0, linetype="dashed", color = "black")+
   labs(title="Sigma (\u03c3)", x="Aggregation (Group Size)",y="Relative Bias")+
   facet_grid(rows=vars(p0),cols=vars(cohesion),switch="y",

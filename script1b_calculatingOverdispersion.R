@@ -122,7 +122,7 @@ plot_chat<-ggplot(data=chat_df_long,aes(x=aggregation, y=chat))+
   geom_boxplot(aes(fill=as.factor(p0)))+ #notch=TRUE
   facet_grid(cols=vars(cohesion), #rows=vars(p0),
              labeller = labeller(cohesion=coh.labs))+ #switch = "y" p0 = p0.labs,
-  labs(title="Overdispersion ",
+  labs(#title="Overdispersion ",
        x="Aggregation (Group Size)",y="Fletcher's C-hat",fill="Detection \nProbability")+theme_bw()+
   theme(plot.title = element_text(hjust = 0.5), 
         #panel.grid.major = element_blank(),

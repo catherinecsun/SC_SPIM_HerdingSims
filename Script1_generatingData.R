@@ -17,6 +17,7 @@ library(sp)
 library(extraDistr)
 library(dplyr)
 library(ggplot2)
+library(ggpubr)
 
 #bischof pop simulation parameters
 #sigma=1.5
@@ -405,25 +406,30 @@ plot_ndets<-ggplot(data=sim_data_Stats,aes(x=as.factor(aggregation),y=ndets))+
   geom_boxplot(aes(fill=as.factor(p0)))+
   facet_grid(cols=vars(cohesion), #rows=vars(p0),
              labeller = labeller(cohesion=coh.labs))+ #switch = "y" p0 = p0.labs,
-  labs(title="Number of Detections",
-       x="Aggregation (Group Size)",y="n",fill="Detection \nProbability")+theme_bw()+ 
+  labs(#title="Total Detections",
+       x="",#"Aggregation (Group Size),
+       y="Number of Detections",fill="Detection \nProbability")+theme_bw()+ 
   theme(plot.title = element_text(hjust = 0.5), 
         #panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
+        axis.text.x=element_blank(),
         strip.background = element_blank(),
         panel.border = element_rect(colour = "black", fill = NA))
-plot_ninds
+plot_ndets
 
 plot_ninds<-ggplot(data=sim_data_Stats,aes(x=as.factor(aggregation),y=ninds))+
   geom_boxplot(aes(fill=as.factor(p0)))+
   ylim(c(0,N.inds))+
   facet_grid(cols=vars(cohesion), #rows=vars(p0),
              labeller = labeller(cohesion=coh.labs))+ #switch = "y" p0 = p0.labs,
-  labs(title="Number of Detected Individuals",
-       x="Aggregation (Group Size)",y="n",fill="Detection \nProbability")+theme_bw()+ 
+  labs(#title="Number of Detected Individuals",
+       x="",#"Aggregation (Group Size)",
+       y="Unique Individuals",fill="Detection \nProbability")+theme_bw()+ 
   theme(plot.title = element_text(hjust = 0.5), 
         #panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
+        axis.text.x=element_blank(),
+        strip.text.x = element_blank(),
         strip.background = element_blank(),
         panel.border = element_rect(colour = "black", fill = NA))
 plot_ninds
@@ -433,15 +439,21 @@ plot_ntraps<-ggplot(data=sim_data_Stats,aes(x=as.factor(aggregation),y=ntraps))+
   ylim(c(0,grid.size.x*grid.size.y))+
   facet_grid(cols=vars(cohesion), #rows=vars(p0),
              labeller = labeller(cohesion=coh.labs))+ #switch = "y" p0 = p0.labs,
-  labs(title="Number of Traps with Detections",
-       x="Aggregation (Group Size)",y="n",fill="Detection \nProbability")+theme_bw()+
+  labs(#title="Number of Traps with Detections",
+       x="Aggregation (Group Size)",y="Traps with Detections",fill="Detection \nProbability")+theme_bw()+
   theme(plot.title = element_text(hjust = 0.5), 
         #panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
+        strip.text.x = element_blank(),
         strip.background = element_blank(),
         panel.border = element_rect(colour = "black", fill = NA))
 plot_ntraps
 
+
+ggarrange(plot_ndets, plot_ninds, plot_ntraps,
+          common.legend = TRUE,legend = "right",
+          #labels = c("A", "B", "C"),
+          ncol = 1, nrow = 3)
 
 #this is in the original bischof code, to run the scr model and then calc stats.
 # and included these arguments in the function: plot.check = TRUE,do.fit = TRUE

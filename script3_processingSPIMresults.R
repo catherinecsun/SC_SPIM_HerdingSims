@@ -112,7 +112,7 @@ for(pids in 1:length(whichPartialIDS)){
   
   
   ### relative bias  ####
-  #(truth-estimate)/estimate
+  #(estimate-truth)/truth
   area<-(range(sim_data[[1]][[1]]$mask[,1])[2]-range(sim_data[[1]][[1]]$mask[,1])[1])*
     (range(sim_data[[1]][[1]]$mask[,2])[2]-range(sim_data[[1]][[1]]$mask[,2])[1])
   truth<-c("D"=N.inds/area,"N"=N.inds,"psi"=N.inds/M,"sigma"=3) #"lam0"=c(0.05,0.20),
@@ -121,7 +121,7 @@ for(pids in 1:length(whichPartialIDS)){
   SPIMresults_allDF$Truth[which(SPIMresults_allDF$param=="lam0"&SPIMresults_allDF$scenario %% 2 == 0)]<-0.2
   SPIMresults_allDF$Truth[which(SPIMresults_allDF$param=="lam0"&SPIMresults_allDF$scenario %% 2 == 1)]<-0.05
   
-  SPIMresults_allDF$RB<-(SPIMresults_allDF$Truth-SPIMresults_allDF$Mean)/SPIMresults_allDF$Mean
+  SPIMresults_allDF$RB<-(SPIMresults_allDF$Mean-SPIMresults_allDF$Truth)/SPIMresults_allDF$Truth
   
   
   ### Coefficient of Variation, precision ####
