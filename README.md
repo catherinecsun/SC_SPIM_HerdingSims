@@ -14,7 +14,7 @@ Evaluating violations of independence (among indivdiuals, in their location and 
 - 100 populations per scenario to simulate/generate data for, and to then estimate.
 
 ## Scripts
-* Scripts with 1 generate and explore data
+* Scripts with 1 generate and explore data (e.g., calculate Fletcher's c-hat)
 * Scripts with 2 run the Spatial Count (Chandler and Royle) and Spatial Partial Identity (Augustine) models
   * uses the Microsoft Azure VM
   * Bayesian framework
@@ -22,6 +22,7 @@ Evaluating violations of independence (among indivdiuals, in their location and 
       * Data augmentation parameter M=400/600
       * single chain of 49998 iterations, burn in of the initial of 4998 and then split into 3 equal chains
 * Scripts with 3 postprocess and summarize
+* Script 4 calculates Relative Variance (Variance compared to the variance under independence), which can then be compared to c-hat)
 
 ## Future opportunities
 * More PID values
