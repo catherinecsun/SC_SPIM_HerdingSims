@@ -87,6 +87,9 @@ coverages_calc_wide[coverages_calc_wide$param=="sigma"&coverages_calc_wide$Model
 
 write.csv(coverages_calc_wide,"coverages_calc_wide.csv")
 
+coverages_calc_wide_wide<-pivot_wider(coverages_calc_wide,
+                                      names_from=param,
+                                      values_from=coverage)
 
 
 ##### plot####
@@ -164,7 +167,8 @@ plot_N_cv<-ggplot(temp[temp$param=="N",],
                            fill=Model)) + 
   scale_fill_manual(values=cbbPalette)+
   geom_boxplot(position=position_dodge(1))+
-  geom_hline(yintercept=0, linetype="dashed", color = "black")+
+ # geom_hline(yintercept=0, linetype="dashed", color = "black")+
+  geom_hline(yintercept=0.2, linetype="dashed", color = "black")+
   # scale_color_brewer(palette="Blues")+
   labs(title="Abundance (N)", x="Aggregation (Group Size)",y="Coefficient of Variation")+
   facet_grid(rows=vars(p0),cols=vars(cohesion),switch="y",
@@ -178,8 +182,9 @@ plot_sig_cv<-ggplot(temp[temp$param=="sigma",],
                              fill=Model)) + 
   scale_fill_manual(values=cbbPalette)+
   geom_boxplot(position=position_dodge(1))+
-  geom_hline(yintercept=0, linetype="dashed", color = "black")+
-  # scale_color_brewer(palette="Blues")+
+  geom_hline(yintercept=0.2, linetype="dashed", color = "black")+
+ # ylim(0,1)+
+   # scale_color_brewer(palette="Blues")+
   labs(title="Sigma (\u03c3)", x="Aggregation (Group Size)",y="Coefficient of Variation")+
   facet_grid(rows=vars(p0),cols=vars(cohesion),switch="y",
              labeller = labeller(p0 = p0.labs,cohesion=coh.labs))+

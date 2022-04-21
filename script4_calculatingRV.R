@@ -228,6 +228,9 @@ plot_chatRV_N_mean<-ggplot()+
 
 
 
+
+
+
 plot_chatRV_Sigma_mean<-ggplot()+
   geom_point(data=chat_and_var,
              size=3,position=position_dodge(width=1),
@@ -244,3 +247,100 @@ plot_chatRV_Sigma_mean<-ggplot()+
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         panel.border = element_rect(colour = "black", fill = NA))
+
+
+
+##just for SPIM ####
+plot_chatRV_SPIM_N_mean<-ggplot()+
+  geom_point(data=chat_and_var[!is.na(chat_and_var$PID),],
+             size=3,position=position_dodge(width=1),
+             aes(x=chat,y=RV_N,color=as.numeric(cohesion)))+#,group=Model,shape=Model))+
+  # geom_line(data=chat_and_var[!is.na(chat_and_var$PID),],
+  #           aes(x=chat, y=RV_N, group=Model,color=cohesion),
+  #           position=position_dodge(width=1))+
+  # #scale_shape_manual(values=c(1,17,17,17,17,17,17))+#,17,15,3,7,8,1))+
+  scale_color_gradient(low="lightblue",high="darkblue")+
+  #  scale_x_continuous(breaks=c(1,4,10),labels=c(1,4,10))+
+  facet_grid(rows=vars(p0))+ #cols=vars(aggregation), 
+  labs(y="RV(N)",x="C_hat",color="Cohesion")+
+  theme_bw()+
+  theme(plot.title = element_text(hjust = 0.5), 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_rect(colour = "black", fill = NA))
+
+
+plot_chatRV_SPIM_Sigma_mean<-ggplot()+
+  geom_point(data=chat_and_var[!is.na(chat_and_var$PID),],
+             size=3,position=position_dodge(width=1),
+             aes(x=chat,y=RV_Sigma,color=as.numeric(cohesion)))+#,group=Model,shape=Model))+
+  # geom_line(data=chat_and_var[!is.na(chat_and_var$PID),],
+  #           aes(x=chat, y=RV_N, group=Model,color=cohesion),
+  #           position=position_dodge(width=1))+
+  # #scale_shape_manual(values=c(1,17,17,17,17,17,17))+#,17,15,3,7,8,1))+
+  scale_color_gradient(low="lightblue",high="darkblue")+
+  #  scale_x_continuous(breaks=c(1,4,10),labels=c(1,4,10))+
+  facet_grid(rows=vars(p0))+ #cols=vars(aggregation), 
+  labs(y="RV(N)",x="C_hat",color="Cohesion")+
+  theme_bw()+
+  theme(plot.title = element_text(hjust = 0.5), 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_rect(colour = "black", fill = NA))
+
+#### just for SC ####
+
+
+plot_chatRV_SC_N_mean<-ggplot()+
+  geom_point(data=chat_and_var[chat_and_var$Model=="SC",],
+             size=3,position=position_dodge(width=1),
+             aes(x=chat,y=RV_N,color=as.numeric(cohesion)))+#,group=Model,shape=Model))+
+  # geom_line(data=chat_and_var[chat_and_var$Model=="SC",],
+  #           aes(x=chat, y=RV_N, group=Model,color=cohesion),
+  #           position=position_dodge(width=1))+
+  # #scale_shape_manual(values=c(1,17,17,17,17,17,17))+#,17,15,3,7,8,1))+
+  scale_color_gradient(low="lightblue",high="darkblue")+
+  #  scale_x_continuous(breaks=c(1,4,10),labels=c(1,4,10))+
+  facet_grid(rows=vars(p0))+ #cols=vars(aggregation), 
+  labs(y="RV(N)",x="C_hat",color="Cohesion")+
+  theme_bw()+
+  theme(plot.title = element_text(hjust = 0.5), 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_rect(colour = "black", fill = NA))
+
+
+plot_chatRV_SC_Sigma_mean<-ggplot()+
+  geom_segment(data=chat_and_var[chat_and_var$Model=="SC",],
+               mapping=aes(x=x, y=y, xend=x+vx, yend=y+vy), 
+               size=2, color="blue") + 
+  
+  geom_point(data=chat_and_var[chat_and_var$Model=="SC",],
+             size=3,position=position_dodge(width=1),
+             aes(x=chat,y=RV_Sigma,color=as.numeric(cohesion)))+
+   scale_color_gradient(low="lightblue",high="darkblue")+
+  #  scale_x_continuous(breaks=c(1,4,10),labels=c(1,4,10))+
+  facet_grid(rows=vars(p0))+ #cols=vars(aggregation), 
+  labs(y="RV(sigma)",x="C_hat",color="Cohesion")+
+  theme_bw()+
+  theme(plot.title = element_text(hjust = 0.5), 
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_rect(colour = "black", fill = NA))
+
+
+
+
+summaryRV_N_wide<-chat_and_var[,c(2:4,8,10)]
+summaryRV_N_wide<-pivot_wider(summaryRV_N_wide,names_from=cohesion,values_from = RV_N)
+write.csv(summaryRB_N_wide,"summaryRV_N_wide.csv")
+
+summaryRV_Sigma_wide<-chat_and_var[,c(2:4,9,10)]
+summaryRV_Sigma_wide<-pivot_wider(summaryRV_Sigma_wide,names_from=cohesion,values_from = RV_Sigma)
+write.csv(summaryRB_N_wide,"summaryRV_Sigma_wide.csv")
+
+
+
+
+
+

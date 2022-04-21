@@ -401,7 +401,7 @@ names(p0.labs) <- c("0.05", "0.2")
 
 coh.labs <- c("imdataCohesion: 0","Cohesion: 0.3", "Cohesion: 0.67", "Cohesion: 1")
 names(coh.labs) <- c("0","0.3", "0.67", "1")
-
+sim_data_Stats<-sim_data_Stats[-which(sim_data_Stats$scenario>2&sim_data_Stats$scenario<9),]
 plot_ndets<-ggplot(data=sim_data_Stats,aes(x=as.factor(aggregation),y=ndets))+
   geom_boxplot(aes(fill=as.factor(p0)))+
   facet_grid(cols=vars(cohesion), #rows=vars(p0),
