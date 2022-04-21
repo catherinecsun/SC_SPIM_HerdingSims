@@ -23,21 +23,9 @@ Evaluating violations of independence (among indivdiuals, in their location and 
       * single chain of 49998 iterations, burn in of the initial of 4998 and then split into 3 equal chains
 * Scripts with 3 postprocess and summarize
 
-## Tasks
+## Future opportunities
+* More PID values
+* Vary trap spacing
+* consider non-SCR based models
+* possible ways to use group size and overdispersion c-hat to correct the SC density underestimates
 
-To do:
-- for coverage plots, consider ribbons connecting the maxes to maxes and mins to mins, rather than a line segment through the median/mean
-- reorder the factors for SC, SPIM: 4 , and SPIM: 3
-- figure out a way to quantify the amount of ID info given pop size and partial id covs.. (read ben's paper and also L. Waits)
-- connect with somebody about my PID calculations.
-
-
-Finished:
-- run antler +  sex +  coat +  collar
-- run sex +  coat  + collar
-- sex  + coat, SPIM
-- collar + sex, SPIM
-
-Run:
-- collar, SPIM
-- sex, SPIM
