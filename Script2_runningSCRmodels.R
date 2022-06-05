@@ -22,8 +22,9 @@ parm_combos<-parm_combos[-c(3:8),]
 ##### how many batches of sims to do/cores to use? ####
 batches<-100
 #the buffer is 3*sigma (9)
-# and the area is  0.1729688 ha 
-# and the reported is  Fitted/Real D  per ha
+# and the mask area is  0.1729688 ha 
+# as is reported in summary of scr.fit
+# and the reported is  Fitted (ie the Real D)  per ha
 # so the N is the reported/0.1729688
 
 for(w in 1:length(sim_data)){ #for every parmcomb
