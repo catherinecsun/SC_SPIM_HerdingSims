@@ -1,15 +1,6 @@
 # annotated R code based on code from Bischof et al. 2020 Group paper
-# - added option of multiple sampling occasions,
-# which makes it so that the cohesion for an individual can change per occasion
-# ie fission-fusion, with strengh determined by the cohesion parameter. 
-# - adding partial ids to inds
-
+# modified
 # we assume that there is no spatial pattern in adhesion and cohesion of partial ids
-
-# bischof simulated nonindpeendent data and then used the independent model
-# we can do the same for SC and SPIM  but it would also be cool to 
-# then use a nonindpendent model, written in jags, 
-# to estimate at least cohesion and maybe adhesion (Group size?)
 
 library(secr)
 library(raster)
@@ -20,22 +11,13 @@ library(tidyr)
 library(ggplot2)
 library(ggpubr)
 
-#bischof pop simulation parameters
-#sigma=1.5
-#p0=0.1
-#n=128 (ie 0.32 per unit)
-#cohesion<-c(0,0.25, 0.5, 0.75, 1)
-#aggregation<-c(1,2,4,8,16,32,64,128)
-#resulting in 40 scenarios, each simulated and run 1000x.
-
-# pop parms for us
+# pop parms 
 grid.size.x<-5 #traps in the x direction
 grid.size.y<-15 #traps in the y direction
 cell.size<- 3# unit spacing between traps
 habitat.buffer<-9
 nocc<-4
 nsims<-100
-
 sigma<-3
 N.inds<-140
 p0<-c(0.05,0.2) # low, good,
@@ -65,7 +47,7 @@ parms_IDcovs<-list(antlers_cont=c(0.015,0.180,0.036,0.015,0.064,0.039,0.049,0.05
 
 ####functions #####
 #to add all-zero capture histories back in to allow alignment between capture histories of all group members,
-expandCH <- function(CH) {# Function from M. Efford (pers. comm., 5/13/2019).
+expandCH <- function(CH) {# Function from M. Efford (pers. comm., 5/13/2019). <- from bischof paper, then further modified
   pop <- attr(CH, 'pop')
   fullCH <- array(0, dim = c(nrow(pop), dim(CH)[2:3]))
   rownames(fullCH) <- rownames(pop)
@@ -455,14 +437,3 @@ ggarrange(plot_ndets, plot_ninds, plot_ntraps,
           common.legend = TRUE,legend = "right",
           #labels = c("A", "B", "C"),
           ncol = 1, nrow = 3)
-
-#this is in the original bischof code, to run the scr model and then calc stats.
-# and included these arguments in the function: plot.check = TRUE,do.fit = TRUE
-#
-# MODEL FITTING to normal Scr model
-# if(do.fit){
-#   out$fit <- out$error <- NULL
-#   try(out$fit <- summary(secr.fit(ch2, mask = msk, trace = F,
-#                                   details = list(distribution = "binomial")))
-#       ,silent = TRUE)
-# }
