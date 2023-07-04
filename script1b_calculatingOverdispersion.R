@@ -8,14 +8,9 @@
 
 
 #packages
-#cant seem to most load packages so everything will just be base
 library(ggplot2)
 library(tidyr)
 library(dplyr)
-
-#remove duplicated scenarios
-#parm_combos<-parm_combos[-c(3:8),]
-#sim_data<-sim_data[-c(3:8)]
 
 sim_data<-readRDS("simulatedData_from24Scenarios.rds")
 
@@ -85,8 +80,6 @@ chat_df_long$aggregation<-as.factor(chat_df_long$aggregation)
 chat_df_long%>%group_by(scenario)%>%summarize(mean=mean(chat))
 str(chat_df_long)
 
-
-
 chat_StatsSum<-chat_df_long%>%group_by(scenario,p0,aggregation,cohesion)%>%
   summarize(#p0,aggregation, cohesion,
     min(chat),
@@ -136,22 +129,3 @@ plot_chat<-ggplot(data=chat_df_long,aes(x=aggregation, y=chat))+
         panel.border = element_rect(colour = "black", fill = NA))
 plot_chat   
 
-
-poI<-0.05
-plot_chat_v2<-ggplot(data=chat_df_long[chat_df_long$p0==poI,],
-                     aes(x=as.factor(cohesion), y=chat))+
-  geom_hline(yintercept=1,lty=2)+
-  geom_hline(yintercept=4,lty=2)+
-  geom_rect( aes(NULL,NULL,xmin=0,xmax=5,),
-            ymin=1,ymax=4, fill="lightgray", alpha=0.9)+ 
-  geom_boxplot(aes(fill=as.factor(aggregation)))+ #notch=TRUE
- # facet_grid(cols=vars(cohesion), #rows=vars(p0),
-#             labeller = labeller(cohesion=coh.labs))+ #switch = "y" p0 = p0.labs,
-  labs(#title="Overdispersion ",
-    x="Group Cohesion",y="Fletcher's C-hat",fill="Aggregation \n(Group Size)")+theme_bw()+
-  theme(plot.title = element_text(hjust = 0.5), 
-      panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        strip.background = element_blank(),
-        panel.border = element_rect(colour = "black", fill = NA))
-plot_chat_v2
