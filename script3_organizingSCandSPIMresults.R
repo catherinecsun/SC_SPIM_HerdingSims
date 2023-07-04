@@ -13,15 +13,6 @@ SPIM_and_SC_results<-rbind.fill(cbind(SPIMresults,
                                 cbind(SCresults,Model="SC"))
 
 #combine coverage results for SPIM and SC together
-
-#bootsrapped coverages
-# colnames(coverages_boot_SC)
-# colnames(coverages_boot_SPIM)
-# #get the model name
-# coverages_boot<-rbind.fill(cbind(coverages_boot_SPIM,
-#                                  Model=paste0("SPIM: ",coverages_boot_SPIM$PID)),
-#                                 cbind(coverages_boot_SC,Model="SC"))
-
 colnames(coverages_calc_SC)
 coverages_calc_SC$aggregation<-as.numeric(levels(coverages_calc_SC$aggregation))[coverages_calc_SC$aggregation]
 colnames(coverages_calc_SPIM)
