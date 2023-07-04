@@ -28,5 +28,4 @@ Evaluating violations of independence (among indivdiuals, in their location and 
 * More PID values
 * Vary trap spacing
 * consider non-SCR based models
-* possible ways to use group size and overdispersion c-hat to correct the SC density underestimates
 
