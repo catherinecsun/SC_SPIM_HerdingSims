@@ -22,10 +22,12 @@ Evaluating violations of independence (among indivdiuals, in their location and 
       * Data augmentation parameter M=400/600
       * single chain of 49998 iterations, burn in of the initial of 4998 and then split into 3 equal chains
 * Scripts with 3 postprocess and summarize
-* Script 4 calculates Relative Variance (Variance compared to the variance under independence), which can then be compared to c-hat)
+* Script 4 calculates Relative Variance (Variance compared to the variance under independence), which can then be compared to c-hat if desired, although not very relevant)
+* Script 5 takes subsets of iterations and plots them for visual determination of the stabiltiy of results (given that only 100 iterations/datasets were used)
 
 ## Future opportunities
 * More PID values
+* Missing partial identity covariates
 * Vary trap spacing
 * consider non-SCR based models
 
